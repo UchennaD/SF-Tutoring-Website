@@ -14,6 +14,7 @@
 
 
 | Student Name | School Email | GitHub Username |
+|:-----------|:------------:|------------:|
 | William Wong      | wwong23@sfsu.edu     |   WilliamWong55955       |
 | Uchenna Duru      |               |                 |
 | Randy Chen      |               |                 |

@@ -17,7 +17,7 @@
 |:-----------|:------------:|------------:|
 | William Wong      | wwong23@sfsu.edu     |   WilliamWong55955       |
 | Uchenna Duru      |       uduru2@sfsu.edu        |       UchennaD          |
-| Randy Chen      |               |        Randychen10         |
+| Randy Chen      |       rchen10@sfsu.edu        |        Randychen10         |
 | Ethan Niu      |        eniu1@sfsu.edu       |        ethannniu         |
 | Cyrus Molina-Perez      |       cmolinaperez@sfsu.edu        |      cyrusmp           |
 | James Barr      |       jbarr@sfsu.edu        |         sfbarr        |

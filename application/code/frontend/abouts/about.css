@@ -1,0 +1,23 @@
+/* minimal styling */
+body{font-family:system-ui,Arial;margin:24px;color:#111}
+.card{
+    display:flex;
+    justify-content: center;
+    background:#ffff;
+    gap: 30px;                      /* optional spacing */
+}
+/* .info {
+    min-width: 250px;  
+} */
+.name{font-weight:700;margin-bottom:8px}
+p{margin:6px 0}
+strong{font-weight:600}
+
+img {
+    height: 200px;
+}
+
+.meta{color:#666;font-size:13px;text-align:right;margin-top:10px}
+
+
+

@@ -1,0 +1,46 @@
+.container {
+    display: block; 
+}
+
+.top {
+    width: 100%;
+    display: flex;
+    align-items: flex-start; 
+    height: auto;
+    padding-top: 20px;
+}
+.bottom {
+  width: 100%;
+  display: flex;
+  align-items: flex-start; 
+  height: auto;
+}
+
+/* position groups horizontally */
+.top-content { 
+    margin-left: 250px;
+ }
+.bottom-content { 
+    margin-top: 25px;
+    margin-left: 150px;
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.title-text {
+    text-align: center;
+    font-family:  Tahoma, sans-serif;
+    font-weight: 600;
+    font-size: 25px;
+    line-height: 40%;
+}
+
+
+.links {
+    text-align: center;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}

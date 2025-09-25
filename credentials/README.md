@@ -9,9 +9,8 @@
 
 1. Server URL or IP
 
-- ec2-54-221-160-81.compute-1.amazonaws.com
-- https://54.221.160.81/
-
+- ec2-3-138-190-108.us-east-2.compute.amazonaws.com
+- https://3.138.190.108.com
 2. SSH username
 
 - ubuntu
@@ -24,11 +23,11 @@
 4. Database URL or IP and port used.
    <br><strong> NOTE THIS DOES NOT MEAN YOUR DATABASE NEEDS A PUBLIC FACING PORT.</strong> But knowing the IP and port number will help with SSH tunneling into the database. The default port is more than sufficient for this class.
 
-- csc648-team14-database.cs5suw80qsgq.us-east-1.rds.amazonaws.com
+- csc648-team14-db.cbqekuam66ja.us-east-2.rds.amazonaws.com
 
 5. Database username
 
-- csc648-team14-database
+- csc648team14db (Master Username)
 
 6. Database password
 
@@ -36,9 +35,11 @@
 
 7. Database name (basically the name that contains all your tables)
 
-- db14
+- csc648-team14-db
 
 8. Instructions on how to use the above information.
+
+- ssh -i "csc648-team14-tutoringProj.pem" ubuntu@ec2-3-138-190-108.us-east-2.compute.amazonaws.com
 
 # Most important things to Remember
 
@@ -47,3 +48,4 @@
 ## <strong>Failure to do so will result it points be deducted from milestone submissions.</strong><br>
 
 ## You may store the most of the above in this README.md file. DO NOT Store the SSH key or any keys in this README.md file.
+

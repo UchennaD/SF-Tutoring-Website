@@ -1,23 +1,93 @@
 /* minimal styling */
-body{font-family:system-ui,Arial;margin:24px;color:#111}
-.card{
-    display:flex;
+body {
+  font-family: system-ui, Arial, sans-serif;
+  margin: 1rem;
+  color: #111;
+}
+
+.card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    background: #fff;
     justify-content: center;
-    background:#ffff;
-    gap: 30px;                      /* optional spacing */
+    align-items: center;
+    padding: 1rem;
+    border-radius: 0.5rem; /* optional for softer look */
 }
 /* .info {
-    min-width: 250px;  
+    min-height: 12rem;
+    padding: .75rem;
+    border-radius: 1rem;
+    background-color: #f0f0f0;
 } */
-.name{font-weight:700;margin-bottom:8px}
-p{margin:6px 0}
-strong{font-weight:600}
 
-img {
-    height: 200px;
+.name {
+    font-weight: 375;
+    margin-bottom: 0.5rem;
+    margin-top: -0.5rem;
 }
 
-.meta{color:#666;font-size:13px;text-align:right;margin-top:10px}
+p {
+    font-weight: 250;
+    margin: 0.25rem 0;
+}
+
+strong {
+    font-weight: 450;
+}
+
+img {
+    max-width: 200px;
+    height: auto; /* keeps proportions, rounds nums */
+    border-radius: 0.25rem; 
+}
+
+.meta {
+  color: #666;
+  font-size: 0.6rem;
+  text-align: right;
+  margin-top: 0.25rem;
+}
+
+/* mobile layout: stack image above text */
+@media (max-width: 600px) {
+  .card {
+    flex-direction: column-reverse;
+    text-align: center;
+  }
+}
 
 
 
+.team-nav {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;     /* allow wrapping */
+  justify-content: center;
+  gap: 1rem;
+}
+.team-nav a {
+  flex: 1 1 100px;     /* grow/shrink, minimum ~100px */
+  max-width: 4rem;    /* keeps them from stretching too wide */
+  text-align: center;
+  padding: 0.3rem .75rem;
+  background: #eee;
+  border-radius: 0.3rem;
+  text-decoration: none;
+  color: #333;
+  font-weight: 200;
+}
+/* .team-nav a {
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #eee;
+  border-radius: 0.2rem;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+} */
+
+.team-nav a:hover {
+  background: #d3e3f5;
+}

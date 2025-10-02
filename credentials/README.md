@@ -42,7 +42,7 @@
 
 - ssh -i "csc648-team14-tutoringProj.pem" ubuntu@ec2-3-138-190-108.us-east-2.compute.amazonaws.com
 - mysql -h csc648-team14-db.cbqekuam66ja.us-east-2.rds.amazonaws.com -P 3306 -u csc648team14db -p
-
+- http://3.138.190.108:3000/
 
 # Most important things to Remember
 
@@ -51,5 +51,6 @@
 ## <strong>Failure to do so will result it points be deducted from milestone submissions.</strong><br>
 
 ## You may store the most of the above in this README.md file. DO NOT Store the SSH key or any keys in this README.md file.
+
 
 

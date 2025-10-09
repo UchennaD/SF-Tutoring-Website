@@ -10,7 +10,7 @@
 1. Server URL or IP
 
 - ec2-3-138-190-108.us-east-2.compute.amazonaws.com
-- https://3.138.190.108.com
+- http://3.138.190.108:3000
 2. SSH username
 
 - ubuntu
@@ -51,6 +51,7 @@
 ## <strong>Failure to do so will result it points be deducted from milestone submissions.</strong><br>
 
 ## You may store the most of the above in this README.md file. DO NOT Store the SSH key or any keys in this README.md file.
+
 
 
 

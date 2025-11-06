@@ -1,7 +1,7 @@
 {
   "name": "tutoring-service",
   "version": "1.0.0",
-  "description": "## Purpose The purpose of this folder is to store all the source code and related files for your team's application. Source code MUST NOT be in any of folder. <strong>YOU HAVE BEEN WARNED</strong>",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,13 +11,21 @@
     "type": "git",
     "url": "git+https://github.com/CSC-648-SFSU/csc648-fa25-145-team14.git"
   },
-  "author": "williamwong55955",
+  "author": "Jamie Barr",
+  "contributors": [
+    "Will Wong",
+    "Uchenna Duru"
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/CSC-648-SFSU/csc648-fa25-145-team14/issues"
   },
   "homepage": "https://github.com/CSC-648-SFSU/csc648-fa25-145-team14#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "dotenv": "^16.4.5",
+    "express": "^5.1.0",
+    "ejs": "^3.1.10",
+    "mysql2": "^3.11.0"
+    
   }
 }

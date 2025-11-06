@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Vertical Prototype</title>
+    <link rel="stylesheet" href="vp.css" />
+    <script src="search.js" defer></script>
+</head>
+<body>
+    <!---- Simple header, will beautify later in CSS ---->
+    <header>
+        <h2>GatorTutor&trade;</h2>
+        <img src = "resources/SFSUSeal.png" id = "SFSUSeal">
+    </header>
+    <!------------------ MAIN CONTENT -------------------->
+    <div class="content">
+        <h1> Welcome to GatorTutor! </h1>
+           
+        <form id="searchForm">
+            <!-- Subject Input -->
+            <label for="subjectInput">Subject:</label>
+            <input type="text" id="subjectInput" name="subjectInput" placeholder="e.g., MATH, CSC, PHYS..." />
+
+            <!-- Mode Dropdown -->
+            <label for="modeDropdown">Mode:</label>
+            <select id="modeDropdown" name="modeDropdown">
+                <option value="">-- Any --</option>
+                <option value="Online">Online</option>
+                <option value="In-Person">In-Person</option>
+            </select>
+
+            <!-- Min Rating -->
+            <label for="minRating">Minimum Rating:</label>
+            <input type="number" id="minRating" name="minRating" step="0.1" min="0" max="5" placeholder="e.g., 4.0" />
+
+            <!-- Date Selection -->
+            <label for="date">Date:</label>
+            <input type="date" id="dateSelection" name="date" />
+
+            <!-- Submit Button -->
+            <button type="submit">Search</button>
+        </form>
+
+        <!-- Results Container | once rows are fetched from db, search.js will populate this DOM element -->
+        <div id="results"></div>
+    </div>
+    
+</body>
+</html>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <title>Vertical Prototype</title>
     <link rel="stylesheet" href="vp.css" />
-    <script src="search.js" defer></script>
+    
 </head>
 <body>
     <!---- Simple header, will beautify later in CSS ---->
@@ -34,7 +34,7 @@
             <input type="number" id="minRating" name="minRating" step="0.1" min="0" max="5" placeholder="e.g., 4.0" />
 
             <!-- Date Selection -->
-            <label for="date">Date:</label>
+            <label for="dateSelection">Date:</label>
             <input type="date" id="dateSelection" name="date" />
 
             <!-- Submit Button -->
@@ -42,8 +42,23 @@
         </form>
 
         <!-- Results Container | once rows are fetched from db, search.js will populate this DOM element -->
-        <div id="results"></div>
+        <div id="resultsContainer" class="results-container"> </div>
     </div>
-    
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const subject = document.getElementById('subjectInput').value;
+        const mode = document.getElementById('modeDropdown').value;
+        const minrating = document.getElementById('minRating').value;
+        const date = document.getElementById('dateSelection').value;
+
+        // Save to sessionStorage
+        sessionStorage.setItem("searchParams", JSON.stringify({ subject, mode, minrating, date }));
+
+        // Redirect to results page
+        window.location.href = "results.html";
+        });
+    </script>
 </body>
 </html>

@@ -40,9 +40,23 @@
 
 8. Instructions on how to use the above information.
 
+9. (optional section created by William for convenience)
+
 - ssh -i "C:\Users\willi\Desktop\gatorTutorsKP.pem" ubuntu@ec2-3-17-153-17.us-east-2.compute.amazonaws.com
 - mysql -h csc648-team14-db.cbqekuam66ja.us-east-2.rds.amazonaws.com -P 3306 -u csc648team14db -p
 - http://3.138.190.108:3000/
+
+pm2 Redeploy commands:
+   On Local Machine (requires .pem key in that dir):
+    - pm2 deploy production setup (First time)
+    - pm2 deploy production (Every other time)
+   On EC2 Instance:
+   - (Be in application dir:)
+   - npm install
+   - pm2 start ecosystem.config.js --env production
+   - pm2 save
+   
+
 
 # Most important things to Remember
 
@@ -51,6 +65,7 @@
 ## <strong>Failure to do so will result it points be deducted from milestone submissions.</strong><br>
 
 ## You may store the most of the above in this README.md file. DO NOT Store the SSH key or any keys in this README.md file.
+
 
 
 

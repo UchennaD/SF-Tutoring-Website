@@ -39,8 +39,8 @@ body {
     flex-grow: 1;
     text-align: center;
     margin: 0;
-    font-size: 28px;
-    color: #333;
+    font-size: 32px;
+    color: #000000;
 }
 
 /* Results grid (if needed) */

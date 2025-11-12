@@ -1,48 +1,135 @@
-
-.header {
-    max-height: 60px;
+/* Header styles */
+#mainHeader {
+    width: 100%;
+    background-color: #eec451;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 20px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #ccc; 
 }
+
+/* Left side of header: SFSU seal and title */
+#header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 #SFSUSeal {
-    max-width: 100px;
-    max-height: 100px;
+    height: 50px;
+    width: auto;
+}
+
+/* Right side of header: login and signup links */
+#header-right a {
+    margin-left: 15px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
 }
 
 body {
-  font-family: system-ui, sans-serif;
-  margin: 0;
-  padding: 2rem;
-  background-color: #f7f9fc;
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.tutor-card {
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-  padding: 1.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.tutor-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
-}
-
-.tutor-card h3 {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-  font-size: 1.25rem;
+  font-family: "Segoe UI", "Lato", sans-serif;
   color: #333;
+  margin: 0;
+  background-color: #ffedbb;
+  min-height: 100vh;
 }
 
-.tutor-card p {
-  margin: 0.3rem 0;
-  font-size: 0.95rem;
-  color: #555;
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px; /* spacing below header */
 }
+
+/* Search bar styles */
+#search-bar {
+  width: 60vw;
+}
+
+/* New styles for .search-bar and its children */
+.search-bar {
+  width: 60vw;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+}
+
+.search-field {
+  display: flex;
+  width: 100%;
+  border-radius: 8px 0 0 8px;
+  overflow: hidden;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+  max-height: 10vh;
+}
+
+.search-field input {
+  flex: 1;
+  padding: 10px 15px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  border-radius: 8px 0 0 8px;
+}
+
+#searchButton {
+  padding: 10px 20px;
+  border: none;
+  background-color: #FFCF01;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0 8px 8px 0;
+  transition: background-color 0.3s ease;
+}
+#filterButton {
+  border: none;
+  padding: 10px 20px;
+  /* background-color: white; */
+  border-radius: 0px 0px 0px 0px;
+}
+#gearIcon {
+  height: 1.5em;      /* same height as text */
+  width: 1.5em;       /* keep it square */
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.search-field button:hover {
+  background-color: #005a9e;
+}
+
+/* Filter menu hidden by default */
+.filter-menu.hidden {
+    display: none;
+}
+
+@font-face {
+  font-family: "Graduate";
+  src: url("resources/fonts/Graduate-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Pompiere";
+  src: url("resources/fonts/Pompiere-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Title font */
+#siteTitle {
+  font-family: "Graduate", "Segoe UI", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #222;
+}
+#welcomeText {
+  font-size: 40px;
+  font-family: "Pompiere", "Segoe UI", "Arial", sans-serif;
+}
+/* Global font for body text */

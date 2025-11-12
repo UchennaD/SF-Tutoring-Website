@@ -2,62 +2,99 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>Vertical Prototype</title>
+    <title>GatorTutor™ Vertical Prototype</title>
     <link rel="stylesheet" href="vp.css" />
-    
 </head>
 <body>
-    <!---- Simple header, will beautify later in CSS ---->
-    <header>
-        <h2>GatorTutor&trade;</h2>
-        <img src = "resources/SFSUSeal.png" id = "SFSUSeal">
+    <!-- HEADER -->
+    <header id="mainHeader">
+        <div id="header-left">
+            <img src="resources/SFSUSeal.png" id="SFSUSeal" alt="SFSU Seal">
+            <h2 id="siteTitle">Gator Tutor</h2>
+        </div>
+        <div id="header-right">
+            <a href="#" id="loginLink">Login</a>
+            <a href="#" id="signupLink">Sign Up</a>
+        </div>
     </header>
-    <!------------------ MAIN CONTENT -------------------->
+
+    <!-- MAIN CONTENT -->
     <div class="content">
-        <h1> Welcome to GatorTutor! </h1>
-           
-        <form id="searchForm">
-            <!-- Subject Input -->
-            <label for="subjectInput">Subject:</label>
-            <input type="text" id="subjectInput" name="subjectInput" placeholder="e.g., MATH, CSC, PHYS..." />
+        <h1 id="welcomeText">SFSU's premier tutoring service<br>now available at your fingertips…</h1>
+        
+        <div class="search-bar">
+            <div class="search-field">
+                <div class="search-icon"></div>
+                <input type="text" id="subjectInput" placeholder="🔍 Which course do you need help with?" />
+                <button type="button" id="filterButton">
+                    <img src="resources/gearIcon.png" id="gearIcon" alt="Gear Icon">
+                </button>
+                <button type="button" id="searchButton">Search</button>
+            </div>
 
-            <!-- Mode Dropdown -->
-            <label for="modeDropdown">Mode:</label>
-            <select id="modeDropdown" name="modeDropdown">
-                <option value="">-- Any --</option>
-                <option value="Online">Online</option>
-                <option value="In-Person">In-Person</option>
-            </select>
+            <!-- Hidden filter menu -->
+            <div id="filterMenu" class="filter-menu hidden">
+                <h3>Filters</h3>
 
-            <!-- Min Rating -->
-            <label for="minRating">Minimum Rating:</label>
-            <input type="number" id="minRating" name="minRating" step="0.1" min="0" max="5" placeholder="e.g., 4.0" />
+                <div class="filter-section">
+                    <label>Mode:</label>
+                    <div class="mode-options">
+                        <label><input type="radio" name="mode" value="Online"> Online</label>
+                        <label><input type="radio" name="mode" value="In-Person"> In-Person</label>
+                    </div>
+                </div>
 
-            <!-- Date Selection -->
-            <label for="dateSelection">Date:</label>
-            <input type="date" id="dateSelection" name="date" />
+                <div class="filter-section">
+                    <label for="minRating">Minimum Rating:</label>
+                    <input type="number" id="minRating" min="0" max="5" step="0.1" placeholder="e.g. 4.0">
+                </div>
 
-            <!-- Submit Button -->
-            <button type="submit">Search</button>
-        </form>
+                <div class="filter-section">
+                    <label for="dateSelection">Date:</label>
+                    <input type="date" id="dateSelection">
+                </div>
 
-        <!-- Results Container | once rows are fetched from db, search.js will populate this DOM element -->
-        <div id="resultsContainer" class="results-container"> </div>
+                <div class="filter-actions">
+                    <button type="button" id="applyFilters">Apply</button>
+                    <button type="button" id="closeFilters">Cancel</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="resultsContainer" class="results-container"></div>
     </div>
+
     <script>
-        document.getElementById('searchForm').addEventListener('submit', (e) => {
-        e.preventDefault();
+        const filterButton = document.getElementById('filterButton');
+        const filterMenu = document.getElementById('filterMenu');
+        const closeFilters = document.getElementById('closeFilters');
+        const applyFilters = document.getElementById('applyFilters');
+        const searchButton = document.getElementById('searchButton');
 
-        const subject = document.getElementById('subjectInput').value;
-        const mode = document.getElementById('modeDropdown').value;
-        const minrating = document.getElementById('minRating').value;
-        const date = document.getElementById('dateSelection').value;
+        // toggle menu visibility
+        filterButton.addEventListener('click', () => {
+            filterMenu.classList.toggle('hidden');
+        });
 
-        // Save to sessionStorage
-        sessionStorage.setItem("searchParams", JSON.stringify({ subject, mode, minrating, date }));
+        // close filter box
+        closeFilters.addEventListener('click', () => {
+            filterMenu.classList.add('hidden');
+        });
 
-        // Redirect to results page
-        window.location.href = "results.html";
+        // apply filters
+        applyFilters.addEventListener('click', () => {
+            filterMenu.classList.add('hidden');
+        });
+
+        // search button logic: save all filters and subject input to sessionStorage and redirect
+        searchButton.addEventListener('click', () => {
+            const subject = document.getElementById('subjectInput').value;
+            const mode = document.querySelector('input[name="mode"]:checked')?.value || '';
+            const minrating = document.getElementById('minRating').value;
+            const date = document.getElementById('dateSelection').value;
+
+            sessionStorage.setItem("searchParams", JSON.stringify({ subject, mode, minrating, date }));
+            window.location.href = "results.html";
         });
     </script>
 </body>

@@ -3,7 +3,7 @@ module.exports = {
     {
       name: "gator-tutors",
       script: "server.js",
-      cwd: "/home/ubuntu/csc648-fa25-145-team14/application",
+      cwd: "/home/ubuntu/source/current/application",
       env: {
         NODE_ENV: "production",
         PORT: 3000

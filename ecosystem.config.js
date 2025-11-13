@@ -18,7 +18,7 @@ module.exports = {
       ref: "origin/main",
       // key: "../credentials/gatorTutorsKP.pem",
       repo: "git@github.com:CSC-648-SFSU/csc648-fa25-145-team14.git",
-      path: "/home/ubuntu",
+      path: "/home/ubuntu/deploy",
       "post-deploy": "npm install --prefix current/application && pm2 reload ecosystem.config.js --env production"
     }
   }

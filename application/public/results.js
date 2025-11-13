@@ -34,7 +34,11 @@ document.addEventListener("DOMContentLoaded", async (event) => {
             const rating = parseFloat(tutor.tutor_rating) || 0;
             const date = tutor.session_date ? formatDate(tutor.session_date) : "Date TBA";
             const description = tutor.description || "No description provided.";
-            const image = tutor.image_url || "/images/default.png";
+
+            // Generate a random profile pic using 
+            let gender = (Math.random() < 0.5) ? "men" : "women";
+            let num = Math.floor(Math.random() * 100);
+            const image = "https://randomuser.me/api/portraits/"+ gender + "/" + num + ".jpg" ;   
 
             card.innerHTML = `
             <img src="${image}" alt="Tutor" class="tutor-img">

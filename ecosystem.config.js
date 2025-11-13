@@ -18,7 +18,7 @@ module.exports = {
       ref: "origin/main",
       repo: "git@github.com:CSC-648-SFSU/csc648-fa25-145-team14.git",
       path: "/home/ubuntu/deploy",
-      "post-deploy": "cd current/application && npm install && pm2 reload ecosystem.config.js --env production"
+      "post-deploy": "cd ../current/application && npm install && pm2 reload ../ecosystem.config.js --env production"
     }
   }
 };

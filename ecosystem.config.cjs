@@ -16,7 +16,7 @@ module.exports = {
       user: "ubuntu",
       host: "3.17.153.17",
       ref: "origin/main",
-      key: "../credentials/gatorTutorsKP.pem",
+      // key: "../credentials/gatorTutorsKP.pem",
       repo: "git@github.com:CSC-648-SFSU/csc648-fa25-145-team14.git",
       path: "/home/ubuntu/source",
       "post-deploy":

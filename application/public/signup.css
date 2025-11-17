@@ -1,0 +1,67 @@
+html {
+    height: 100%;
+}
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #ffedbb;
+    margin: 0;
+    font-family: "Segoe UI", "Lato", sans-serif;
+    color: #333;
+}
+#mainHeader {
+  width: 100%;
+  background-color: #eec451;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #ccc;
+}
+
+#header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+h1, h2 {
+  margin: 0;
+}
+
+#SFSUSeal {
+  height: 50px;
+  width: auto;
+}
+
+/* Shared header right links */
+#header-right a {
+  margin-left: 15px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+
+#header-right a:hover {
+  color: #005a9e;
+}
+
+@font-face {
+    font-family: "Graduate";
+    src: url("resources/fonts/Graduate-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+/* Branding title */
+#siteTitle {
+  font-family: "Graduate", "Segoe UI", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #222;
+}
+
+

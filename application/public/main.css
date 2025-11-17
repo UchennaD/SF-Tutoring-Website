@@ -8,7 +8,19 @@
 
 @font-face {
   font-family: "Pompiere";
-  src: url("resources/fonts/Pompiere-Regular.ttf") format("truetype");
+  src: url("resources/fonts/Pompiere.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Rounded";
+  src: url("resources/fonts/RoundedFont.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Round";
+  src: url("resources/fonts/RoundedFont.ttf") format("truetype");
+}
+@font-face {
+    font-family: "Zen";
+    src: url("resources/fonts/Zen.ttf") format("truetype");
 }
 
 /* =========================================================
@@ -45,7 +57,7 @@ h1, h2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 20px;
+  padding: 10px 20px;
   box-sizing: border-box;
   border-bottom: 1px solid #ccc;
 }
@@ -54,6 +66,11 @@ h1, h2 {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+/* occaisional home hotlink */
+a#homeLink {
+  color: #333;
+  text-decoration: none;
 }
 
 #SFSUSeal {
@@ -313,7 +330,7 @@ h1, h2 {
   border: 1px solid #e0d6a8;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  padding: 1rem 1.5rem;
+  padding: 1rem 2.5rem 1rem 1rem;
   z-index: 999;
 }
 
@@ -494,3 +511,86 @@ h1, h2 {
     font-size: 24px;
   }
 }
+
+
+
+/* PRE-SIGN UP PAGE */
+/* CHOOSE ACCOUNT TYPE */
+
+
+
+#contentBox {
+    display: flex;
+    flex-direction: row;    /* creates 2 halves HORIZONTALLY */
+    box-sizing: border-box;
+    width: max(45%, 420px); /* Responsive width */
+    height: auto;
+    min-height: 300px;
+    align-items: stretch;
+    border-radius: 40px;
+    background-color: #fff4d7;
+    cursor: default;        /* no highlight/edit pointer */
+    justify-self: center;   /* must justify here bc parent no longer flex */
+}
+
+.boxHalf {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    margin: 25px 5% 20px;
+    flex: 1;
+    height: auto;
+}
+/* vertical line */ 
+#separator {
+    margin: 40px 0%; 
+    border: 1px solid #000000;
+}
+
+
+/* titles for each box half */
+h1 {
+    font-family: "Round", sans-serif;
+    font-weight: 100;
+    font-size: 30px;
+    line-height: 1em;
+    
+    margin-block-start: 0em; /* element height == text height */
+    margin-block-end: 0em;
+}
+
+/* text for each box half */
+h3 {
+    font-family: "Zen", sans-serif;
+    text-align: center;
+    line-height: 2em;
+    margin-top: 0.5em;
+}
+
+/* the button background */
+.button {
+    background-color: #eec451;
+    width: 80%;
+    height: 2.5em;
+    border-radius: 20px;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor:grab;
+}
+
+/* the text/link itself */
+.button a {
+    /* display: inline-block; */
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    color: #222;
+    font-weight: 600;
+    text-align: center;
+    line-height: 2.5em;
+    border-radius: 20px;
+  }
+

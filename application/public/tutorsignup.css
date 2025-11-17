@@ -5,9 +5,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 20px;
+  padding: 10px 20px;
   box-sizing: border-box;
   border-bottom: 1px solid #ccc;
+}
+
+h1, h2 {
+  margin: 0;
 }
 
 /* Left side of header: SFSU seal and title */
@@ -15,6 +19,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* occaisional home hotlink */
+a#homeLink {
+  color: #333;
+  text-decoration: none;
 }
 
 #SFSUSeal {
@@ -51,6 +61,7 @@ body {
   font-weight: 700;
   color: #222;
 }
+
 
 /* Tab navigation styles for tutor signup */
 .content {

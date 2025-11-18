@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up landing page</title>
+    <!-- Reuse the same stylesheet so header + background match -->
+    <link rel="stylesheet" href="main.css">
+
+</head>
+<body>
+    <!-- HEADER -->
+    <header id="mainHeader">
+        <div id="header-left">
+            <img src="resources/SFSUSeal.png" id="SFSUSeal" alt="SFSU Seal">
+            <h2 id="siteTitle">
+                <a id="homeLink" href="search.html">Gator Tutor</a>
+            </h2>
+        </div>
+        <div id="header-right">
+            <a href="login.html" id="loginLink">Login</a>
+            <a href="search.html" id="homeLink">Home</a>
+        </div>
+    </header>
+
+    <div id="notesLayout">
+
+        <!-- STUDENTS -->
+        <div class="column" id="colStudents">
+            <h3>Student Notes</h3>
+    
+            <!-- Placeholder student buttons -->
+            <button class="studentBtn" data-student="student1">Student 1</button>
+            <button class="studentBtn" data-student="student2">Student 2</button>
+            <button class="studentBtn" data-student="student3">Student 3</button>
+        </div>
+    
+        <!-- NOTES LIST -->
+        <div class="column" id="colNotes">
+            <button class="filterBtn">Filter</button>
+
+            <div id="notesList">
+                <!-- Filled when a student is clicked -->
+            </div>
+        </div>
+    
+        <!-- NOTE DISPLAY -->
+        <div class="column" id="colDisplay">
+            <div id="noteContent">
+                <!-- Filled when a note is clicked -->
+            </div>
+        </div>
+    
+    </div>

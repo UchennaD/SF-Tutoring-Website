@@ -594,3 +594,61 @@ h3 {
     border-radius: 20px;
   }
 
+
+/* Tutors viewing students notes */
+
+  #notesLayout {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    padding-top: 5px;
+    width: 100%;
+}
+
+/* Column sizes */
+#colStudents {
+    flex: 0.8;
+
+}
+
+#colNotes {
+    flex: 0.6;
+}
+
+#colDisplay {
+    flex: 2;
+}
+
+/* Shared column styling */
+.column {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    min-height: 400px;
+}
+
+/* Buttons */
+.studentBtn {
+    border-radius: 8px;
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 10px;
+    margin-left: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.filterBtn{
+    border-radius: 30px;
+    width: 50%;
+    padding: 10px;
+    margin-left: 90px;
+    margin-bottom: 10px;
+    background-color: #000;
+    color: white;
+    cursor: pointer;
+}
+
+#noteContent {
+    white-space: pre-wrap;
+}

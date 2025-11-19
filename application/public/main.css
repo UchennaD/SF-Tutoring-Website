@@ -197,6 +197,15 @@ margin-bottom: 10px;
     font-family: "Segoe UI", sans-serif;
   }
 
+  .confirmation-actions button {
+    margin: 10px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
 
 /* =========================================================
    EMAIL VERIFICATION PAGE

@@ -1,41 +1,8 @@
-/* ==== Results Page Styling ==== */
 
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #f8f9fa;
-    margin: 0;
-    padding: 0;
-}
-
-/* Header container */
-.results-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 40px;
-    background-color: #ffffff;
-    border-bottom: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-/* Back button */
-.back-btn {
-    background-color: #007bff;
-    border: none;
-    color: white;
-    padding: 10px 18px;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-}
-
-.back-btn:hover {
-    background-color: #0056b3;
-}
 
 /* Title */
 #resultsTitle {
+    padding-top: 20px;
     flex-grow: 1;
     text-align: center;
     margin: 0;
@@ -50,4 +17,110 @@ body {
     justify-content: center;
     padding: 30px;
     gap: 20px;
+}
+
+/* ==== Tutor Result Cards ==== */
+.tutor-card {
+    width: 300px;
+    background-color: #fff8d6;
+    border: 2px solid #eec451;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tutor-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+}
+
+/* Tutor profile image */
+.tutor-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #eec451;
+    margin-bottom: 12px;
+}
+
+/* Tutor name */
+.tutor-name {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+/* Subject badges container */
+.tutor-subject {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+/* Individual subject badge */
+.subject-badge {
+    background-color: #ffcf01;
+    color: #333;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #e0b84b;
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* Rating stars */
+.tutor-rating {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #d4a017;
+}
+
+/* Description text */
+.tutor-description {
+    font-size: 14px;
+    color: #555;
+    text-align: center;
+    margin-bottom: 14px;
+    padding: 0 8px;
+}
+
+/* Session date */
+.tutor-date {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 16px;
+}
+
+/* Book button */
+.book-btn {
+    background-color: #eec451;
+    color: #333;
+    border: none;
+    padding: 10px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 80%;
+    transition: background-color 0.25s ease, transform 0.15s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.book-btn:hover {
+    background-color: #ffdc63;
+    transform: translateY(-2px);
+}
+
+.book-btn:active {
+    transform: translateY(1px);
 }

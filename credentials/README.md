@@ -48,10 +48,10 @@
 
 pm2 Redeploy commands:
    On Local Machine (requires .pem key in that dir):
-    - eval $(ssh-agent -s)
-    - ssh-add "/c/Users/willi/Desktop/gatorTutorsKP.pem"
-    - pm2 deploy production setup (First time)
-    - pm2 deploy production (Every other time)
+- eval $(ssh-agent -s)
+- ssh-add "/c/Users/willi/Desktop/gatorTutorsKP.pem"
+- pm2 deploy production setup (First time)
+- pm2 deploy production (Every other time)
    
 # Most important things to Remember
 
@@ -60,6 +60,7 @@ pm2 Redeploy commands:
 ## <strong>Failure to do so will result it points be deducted from milestone submissions.</strong><br>
 
 ## You may store the most of the above in this README.md file. DO NOT Store the SSH key or any keys in this README.md file.
+
 
 
 

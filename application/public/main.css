@@ -106,6 +106,80 @@ a#homeLink {
 }
 
 /* =========================================================
+   DASHBOARD PAGE
+   ========================================================= */
+.sidebar {
+  width: 230px;
+  height: 100vh;
+  background: #f9f5e9;
+  color: #333;
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.sidebar h2 {
+margin-bottom: 30px;
+text-align: center;
+}
+
+.sidebar a {
+text-decoration: none;
+color: #17181a;
+padding: 12px 0;
+display: block;
+border-radius: 6px;
+}
+
+.main {
+margin-left: 270px;
+padding: 25px;
+}
+
+
+.cards {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 20px;
+padding-top: 20px;
+}
+
+.appt {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  background: #f8f8f8;
+}
+.appt h2 { margin: 0 0 10px 0; }
+.appt button {
+  margin-right: 10px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.msg-btn { background: #4a90e2; color: white; }
+.cancel-btn { background: #d9534f; color: white; }
+
+
+.card {
+background: white;
+border-radius: 12px;
+padding: 20px;
+box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+
+.card h3 {
+margin-top: 0;
+margin-bottom: 10px;
+}
+
+
+/* =========================================================
    EMAIL VERIFICATION PAGE
    ========================================================= */
 .verification-container {

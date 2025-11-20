@@ -8,6 +8,11 @@
     color: #000000;
 }
 
+a#homeLink {
+    color: #333;
+    text-decoration: none;
+  }
+
 /* Results grid (if needed) */
 .results-container {
     display: flex;

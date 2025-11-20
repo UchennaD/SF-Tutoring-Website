@@ -79,7 +79,54 @@ export async function verifyOTP(req, res) {
 
 
 export async function addUser(req, res){
-    const {first_name, last_name, email, password, role } = req.body;
+    try {
+        // Extract sessionStorage user info from HTTP request
+        const { first_name, last_name, email, password, role } = req.body;
 
+        // Simple double check pre-account creation, one part of name allowed to be null
+        if (!email || !password || !role) {
+            return res.status(400).json({ success: false, error: "Missing required fields" });
+        }
 
+        // Hash password using fan-favorite: bcrypt
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert the new user into our users table, 
+        // (just like bookings table process in bookingController!)
+        const [result] = await pool.query(
+            `INSERT INTO users 
+            (first_name, last_name, email, password, role)
+            VALUES (?, ?, ?, ?, ?)`,
+            [
+            first_name || null,
+            last_name || null,
+            email,
+            hashedPassword,
+            role
+            ]
+        );
+
+        // Respond with success!!!
+        return res.status(200).json({
+            success: true,
+            message: "User created!",
+            user_id: result.insertId
+        });
+
+    } catch (err) {
+        console.error("addUser error from authController.js: ", err);
+
+        // Handle duplicate email
+        if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({
+                success: false,
+                error: "Account already exists with email"
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            error: "Miscellaneous server error creating user"
+        });
+    }
 }

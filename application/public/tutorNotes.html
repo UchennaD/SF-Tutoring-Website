@@ -19,7 +19,7 @@
         </div>
         <div id="header-right">
             <a href="login.html" id="loginLink">Login</a>
-            <a href="search.html" id="homeLink">Home</a>
+            <a href="signup.html" id="signupLink">Sign Up</a>
         </div>
     </header>
 
@@ -30,10 +30,10 @@
             <h3>Student Notes</h3>
     
             <!-- Placeholder student buttons -->
-            <button class="studentBtn" data-student="student1">Bryce</button>
-            <button class="studentBtn" data-student="student2">Allison</button>
-            <button class="studentBtn" data-student="student3">Max</button>
-            <button class="studentBtn" data-student="student4">Tori</button>
+            <button class="studentBtn" data-student="bryce">Bryce</button>
+            <button class="studentBtn" data-student="allison">Allison</button>
+            <button class="studentBtn" data-student="max">Max</button>
+            <button class="studentBtn" data-student="tori">Tori</button>
         </div>
     
         <!-- NOTES LIST -->
@@ -56,21 +56,23 @@
     </div>
 </body>
 
+<!--Script to handle loading notes for each student-->
+
 <script>
     const tutorData = { 
         bryce: [
-            { session: "Session 1", content: "application/public/resources/notes/SampleNotes1.pdf" },
-            { session: "Session 2", content: "application/public/resources/notes/SampleNotes2.pdf" }
+            { session: "Session 1", content: "resources/notes/SampleNotes1.jpg" },
+            { session: "Session 2", content: "resources/notes/SampleNotes2.jpg" }
         ],
         allison: [
-            { session: "Session 1", content: "application/public/resources/notes/SampleNotes3.pdf" }
+            { session: "Session 1", content: "resources/notes/SampleNotes3.jpg" }
         ],
         max: [
-            { session: "Session 1", content: "application/public/resources/notes/SampleNotes4.pdf" },
-            { session: "Session 2", content: "application/public/resources/notes/SampleNotes5.pdf" }
+            { session: "Session 1", content: "resources/notes/SampleNotes4.jpg" },
+            { session: "Session 2", content: "resources/notes/SampleNotes1.jpg" }
         ],
         tori: [
-            { session: "Session 1", content: "application/public/resources/notes/SampleNotes6.pdf" }
+            { session: "Session 1", content: "resources/notes/SampleNotes2.jpg" }
         ]
     };
 
@@ -83,7 +85,7 @@
             
             button.classList.add("selected");
 
-            const studentKey = btn.dataset.student;
+            const studentKey = button.dataset.student;
             const sessions = tutorData[studentKey];
 
             const list = document.getElementById('notesList');
@@ -101,7 +103,7 @@
                     noteBtn.classList.add("selected");
 
                     document.getElementById('noteContent').innerHTML = `
-                        <embed src="${session.content}" type="application/pdf" width="100%" height="600px" />
+                        <img src="${session.content}" style="width:100%; max-width:700px;">
                     `;
                 });
 

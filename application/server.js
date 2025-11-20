@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import tutoringRoutes from './routes/tutoringRoutes.js';
+import bookingRoutes from "./routes/bookingRoutes.js";
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -15,7 +16,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // API routes
-app.use('/api', tutoringRoutes);
+app.use('/api', tutoringRoutes); // tutor results + health check
+app.use("/api", bookingRoutes); // booking + book health check
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {

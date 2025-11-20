@@ -3,14 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>Tutor Results</title>
+    <link rel="stylesheet" href="main.css" />
     <link rel="stylesheet" href="results.css" />
     <script src="results.js"></script>
 </head>
 <body>
-    <div class="results-header">
-        <button onclick="window.location.href='search.html'" class="back-btn">Home</button>
-        <h1 id="resultsTitle">Matching Tutors</h1>
-    </div>
+    <!-- HEADER -->
+    <header id="mainHeader">
+        <div id="header-left">
+            <img src="resources/SFSUSeal.png" id="SFSUSeal" alt="SFSU Seal">
+            <h2 id="siteTitle">Gator Tutor</h2>
+        </div>
+        <div id="header-right">
+            <a href="login.html" id="loginLink">Login</a>
+            <a href="signup.html" id="signupLink">Sign Up</a>
+        </div>
+    </header>
+    <span><h1 id="resultsTitle">Available Sessions</h1></span>
+
     <div id="resultsContainer" class="results-container"></div>
    
 </body>

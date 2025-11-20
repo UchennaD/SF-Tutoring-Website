@@ -24,7 +24,7 @@
     <div class="login-container">
         <div class="login-box">
             <h1>Login</h1>
-            <form>
+            <form action="dashboard.html" method="GET">
                 <div class="form-group">
                     <label for="username">USERNAME</label>
                     <input type="text" id="username" name="username" placeholder="" required>
@@ -35,7 +35,11 @@
                     <input type="password" id="password" name="password" placeholder="" required>
                 </div>
 
-                <button type="submit" class="login-btn">LOGIN</button>
+                <button type="button" class="login-btn"
+                    onclick="window.location.href='dashboard.html'">
+                    LOGIN
+                </button>
+
             </form>
 
             <div class="signup-link">

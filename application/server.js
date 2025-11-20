@@ -2,7 +2,8 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import tutoringRoutes from './routes/tutoringRoutes.js';
-import bookingRoutes from "./routes/bookingRoutes.js";
+import bookingRoutes from './routes/bookingRoutes.js';
+import authRoutes from './routes/authRoutes.js'
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);

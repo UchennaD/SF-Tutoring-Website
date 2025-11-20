@@ -10,11 +10,13 @@
     <header id="mainHeader">
         <div id="header-left">
             <img src="resources/SFSUSeal.png" id="SFSUSeal" alt="SFSU Seal">
-            <h2 id="siteTitle">Gator Tutor</h2>
+            <h2 id="siteTitle">
+                <a id="homeLink" href="search.html">Gator Tutor</a>
+            </h2>
         </div>
         <div id="header-right">
-            <a href="#" id="loginLink">Login</a>
-            <a href="#" id="signupLink">Sign Up</a>
+            <a href="login.html" id="loginLink">Login</a>
+            <a href="search.html" id="homeLink">Home</a>
         </div>
     </header>
 
@@ -32,7 +34,7 @@
                 <input type="text" class="digit-box" maxlength="1" inputmode="numeric" placeholder="0" />
             </div>
 
-            <a href="#" id="enterButton">Enter</a>
+            <button id="enterButton" type="button">Enter</button>
         </div>
     </div>
 
@@ -43,7 +45,7 @@
             box.addEventListener('input', (e) => {
                 const value = e.target.value;
 
-                if (!/^[1-9]$/.test(value)) {
+                if (!/^\d$/.test(value)) {
                     e.target.value = '';
                     return;
                 }
@@ -60,13 +62,67 @@
             });
         });
 
-        document.getElementById('enterButton').addEventListener('click', (e) => {
+        document.getElementById('enterButton').addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            // create one value from 4 discrete digits
             const code = Array.from(digitBoxes).map(box => box.value).join('');
-            if (code.length === 4) {
-                console.log('Verification code:', code);
-            } else {
+            if (code.length !== 4) {
                 alert('Please enter all 4 digits');
-                e.preventDefault();
+                return;
+            }
+
+            // retrieve the User Info from sessionStorage 
+            // (we haven't verified them yet, but we need their email to check for match in DB)
+            const stored = sessionStorage.getItem("pendingUserInfo");
+
+            // Handle lost sessionStorage due to idle or browser refresh
+            if (!stored) {
+                alert("Signup session expired. Please restart the signup process.");
+                return;
+            }
+
+            // convert string to original JSON format, as seen in search.html -> results.js
+            const pending = JSON.parse(stored);
+            const email = pending.email;
+
+            try {
+                // Step 1: Verify OTP via authRouter -> authController.verifyOTP(email, code) 
+                const verifyRes = await fetch("/api/auth/verify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: email, otp: code })
+                });
+
+                // Parse HTTP Request response status into useful JSON format
+                const verifyData = await verifyRes.json();
+                if (!verifyData.success) {
+                    alert("Invalid or expired code.");
+                    return;
+                }
+
+                // Step 2: Create User
+                const createRes = await fetch("/api/auth/create", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(pending)
+                });
+
+                // same process as before, convert response into useful message
+                const createData = await createRes.json();
+                if (!createData.success) {
+                    alert("Failed to create account: " + createData.error);
+                    return;
+                }
+
+                // Step 3: Clear this code from sessionStorage for security 
+                sessionStorage.removeItem("pendingUserInfo");
+                // Non-lazy signup: send student to their dashboard (maybe send to search in the future?)
+                window.location.href = "dashboard.html";
+
+            } catch (err) {
+                console.error("OTP verification error:", err);
+                alert("Server error verifying code.");
             }
         });
     </script>

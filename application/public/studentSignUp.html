@@ -50,12 +50,66 @@
                         <input type="password" id="confirmPassword" placeholder="Confirm password" required>
                     </div>
 
-                    <button type="submit" class="signup-button">Sign Up</button>
+                    <button type="submit" class="signup-button" id="signup-button">Sign Up</button>
                 </form>
 
                 <p class="login-link">Already have an account? <a href="login.html">Login</a></p>
             </div>
         </div>
     </div>
+
+<!-- Script for passing user info to email auth page, only storing in DB once OTP is received  -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const signup = document.getElementById('signup-button');
+            // create account logic: save all input to sessionStorage and redirect 
+            signup.addEventListener('click', async () => {
+
+                // get fullname & split into first + last
+                const fullName = document.getElementById('name').value.trim();
+                const [first, ...rest] = fullName.split(" ");
+                const last = rest.join(" ");
+
+                // get remaining info
+                const emailAddress =       document.getElementById("email").value;
+                const password1 =   document.getElementById("password").value;
+                const password2 =   document.getElementById("confirmPassword").value;
+
+                // first, check if passwords match
+                if (password1 !== password2){
+                alert("Passwords do not match, please re-enter.");
+                return;
+                }
+
+                // if passwords match continue
+                const pendingInfo = {
+                    first_name: first,
+                    last_name: last || null,
+                    email: emailAddress,
+                    password: password1,
+                    role: "student"
+                }
+                // save this info so we can pass to backend if OTP succesful
+                sessionStorage.setItem("pendingUserInfo", JSON.stringify(pendingInfo));
+
+                // 3. HTTP request to trigger backend OTP email  
+                try {
+                    const res = await fetch(`/api/auth/email?email=${encodeURIComponent(emailAddress)}`);
+                    const data = await res.json();
+
+                    if (!data.success) {
+                        alert("Failed to send verification email. Please try again.");
+                        return;
+                    }
+                } catch (err) {
+                    console.error("OTP send error:", err);
+                    alert("Server error sending verification code.");
+                    return;
+                }
+                // Redirect to OTP passcode entry page upon auth API success
+                window.location.href = "emailVerification.html";
+            });
+        });
+    </script>
 </body>
 </html>

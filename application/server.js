@@ -17,7 +17,8 @@ app.use(express.json());
 
 // API routes
 app.use('/api', tutoringRoutes); // tutor results + health check
-app.use("/api", bookingRoutes); // booking + book health check
+app.use('/api', bookingRoutes); // booking + book health check
+app.use('/api/auth', authRoutes); // OTP verification, user sign-up/sign-in, future session handling?
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {

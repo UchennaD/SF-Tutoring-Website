@@ -608,7 +608,6 @@ h3 {
 /* Column sizes */
 #colStudents {
     flex: 0.8;
-
 }
 
 #colNotes {
@@ -632,8 +631,8 @@ h3 {
     border-radius: 8px;
     width: 90%;
     padding: 10px;
-    margin-bottom: 10px;
-    margin-left: 13px;
+    margin: 0 auto 10px auto;
+    display: block;
     text-align: left;
     cursor: pointer;
 }
@@ -642,8 +641,8 @@ h3 {
     border-radius: 30px;
     width: 50%;
     padding: 10px;
-    margin-left: 90px;
-    margin-bottom: 10px;
+    margin: 0 auto 10px auto;
+    display: block;
     background-color: #000;
     color: white;
     cursor: pointer;
@@ -651,4 +650,15 @@ h3 {
 
 #noteContent {
     white-space: pre-wrap;
+}
+
+.studentBtn.selected {
+    background-color: #ffcf01;
+    color: white;
+    font-weight: 700;
+}
+
+.sessionBtn.selected {
+    background-color: #fff;
+    font-weight: 700;
 }

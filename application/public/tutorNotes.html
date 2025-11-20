@@ -30,13 +30,15 @@
             <h3>Student Notes</h3>
     
             <!-- Placeholder student buttons -->
-            <button class="studentBtn" data-student="student1">Student 1</button>
-            <button class="studentBtn" data-student="student2">Student 2</button>
-            <button class="studentBtn" data-student="student3">Student 3</button>
+            <button class="studentBtn" data-student="student1">Bryce</button>
+            <button class="studentBtn" data-student="student2">Allison</button>
+            <button class="studentBtn" data-student="student3">Max</button>
+            <button class="studentBtn" data-student="student4">Tori</button>
         </div>
     
         <!-- NOTES LIST -->
         <div class="column" id="colNotes">
+            <h3>Sessions</h3>
             <button class="filterBtn">Filter</button>
 
             <div id="notesList">
@@ -52,3 +54,63 @@
         </div>
     
     </div>
+</body>
+
+<script>
+    const tutorData = { 
+        bryce: [
+            { session: "Session 1", content: "application/public/resources/notes/SampleNotes1.pdf" },
+            { session: "Session 2", content: "application/public/resources/notes/SampleNotes2.pdf" }
+        ],
+        allison: [
+            { session: "Session 1", content: "application/public/resources/notes/SampleNotes3.pdf" }
+        ],
+        max: [
+            { session: "Session 1", content: "application/public/resources/notes/SampleNotes4.pdf" },
+            { session: "Session 2", content: "application/public/resources/notes/SampleNotes5.pdf" }
+        ],
+        tori: [
+            { session: "Session 1", content: "application/public/resources/notes/SampleNotes6.pdf" }
+        ]
+    };
+
+    // When a student button is clicked load their notes
+    document.querySelectorAll('.studentBtn').forEach(button => {
+        button.addEventListener('click', () => {
+
+            document.querySelectorAll(".studentBtn")
+            .forEach(btn => btn.classList.remove("selected"));
+            
+            button.classList.add("selected");
+
+            const studentKey = btn.dataset.student;
+            const sessions = tutorData[studentKey];
+
+            const list = document.getElementById('notesList');
+            list.innerHTML = ''; // Clear previous notes
+
+            sessions.forEach(session => {
+                const noteBtn = document.createElement('button');
+                noteBtn.className = 'noteBtn';
+                noteBtn.textContent = session.session;
+                noteBtn.addEventListener('click', () => {
+
+                    document.querySelectorAll(".noteBtn")
+                    .forEach(btn => btn.classList.remove("selected"));
+
+                    noteBtn.classList.add("selected");
+
+                    document.getElementById('noteContent').innerHTML = `
+                        <embed src="${session.content}" type="application/pdf" width="100%" height="600px" />
+                    `;
+                });
+
+                list.appendChild(noteBtn);
+            });
+
+            document.getElementById("noteContent").textContent = "Select a session to view notes.";
+        });
+    });
+</script>
+            
+        

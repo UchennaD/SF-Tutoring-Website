@@ -82,6 +82,8 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                         alert("Session booked successfully!");
                         // runs AFTER user clicks "OK"
                         card.remove(); // remove the card from DOM
+                        // redirect to dashboard after booking
+                        window.location.href = "dashboard.html";
                     } else {
                         alert("Booking failed: " + data.error);
                     }

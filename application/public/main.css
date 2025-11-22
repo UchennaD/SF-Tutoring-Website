@@ -406,6 +406,23 @@ margin-bottom: 10px;
   background-color: #e6b800;
 }
 
+.emoji {
+  position: relative;
+  display: inline-block;
+}
+
+.search-emoji {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+#subjectInput {
+  padding-left: 30px;
+}
+
 #filterButton {
   padding: 10px 20px;
   border: none;

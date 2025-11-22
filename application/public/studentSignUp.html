@@ -50,7 +50,10 @@
                         <input type="password" id="confirmPassword" placeholder="Confirm password" required>
                     </div>
 
-                    <button type="submit" class="signup-button" id="signup-button">Sign Up</button>
+                    <!-- <button type="submit"> inside a <form> leads to unwanted page reload 
+                        on form submission!!! type="button" better for JS processing -->
+
+                    <button type="button" class="signup-button" id="signup-button">Sign Up</button>
                     <!-- <a href="emailVerification.html" class="signup-button" id="signup-button">Sign Up</a> -->
  
                 </form>
@@ -102,6 +105,9 @@
                     if (!data.success) {
                         alert("Failed to send verification email. Please try again.");
                         return;
+                    } else {
+                        console.log("OTP email triggered. " + 
+                        "OTP + Email combo added to database for later confirmation");
                     }
                 } catch (err) {
                     console.error("OTP send error:", err);

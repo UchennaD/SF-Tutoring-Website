@@ -408,7 +408,8 @@ margin-bottom: 10px;
 
 .emoji {
   position: relative;
-  display: inline-block;
+  flex: 1;
+  display: flex;
 }
 
 .search-emoji {

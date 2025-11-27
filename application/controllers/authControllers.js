@@ -130,3 +130,12 @@ export async function addUser(req, res){
         });
     }
 }
+
+// Login controller to:
+// 1. verify credentials 
+// 2. initiate session & state tracking on server
+export async function login(req, res) {
+    const { email, password } = req.body;
+    console.log("Email received: " + email); 
+    console.log("Password received: " + password);
+}

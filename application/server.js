@@ -1,6 +1,12 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+// Session Handling for auth/login
+import session from "express-session";
+import MySQLStore from "express-mysql-session";
+// Database stuff i.e. our mysql.pool, which also triggers process.env population
+import { dbConfig } from "./config/db.js"; 
+// Simple API routers connecting HTTP routes to their respective controllers.
 import tutoringRoutes from './routes/tutoringRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import authRoutes from './routes/authRoutes.js'
@@ -16,11 +22,41 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// API routes
+
+// Session Handling (must be set up before routes)
+
+// weird old school wrapper function that exports MySQLStore class
+const SessionStoreClass = MySQLStore(session); 
+
+// Once bound we can instantiate a new sessionStore object
+const sessionStore = new SessionStoreClass({
+  host: dbConfig.host,
+  port: dbConfig.port,
+  user: dbConfig.user,
+  password: dbConfig.password,
+  database: dbConfig.database,
+});
+
+app.use(
+  session({
+    key: "gator_tutor_sid",
+    secret: process.env.SESSION_SECRET || "gatortutorsecretabc123",
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+    },
+  })
+);
+
+// API routes (after sessions built out)
 app.use('/api', tutoringRoutes); // tutor results + health check
 app.use('/api', bookingRoutes); // booking + book health check
 app.use('/api/auth', authRoutes); // OTP verification, user sign-up/sign-in, future session handling?
 
+// Nginx will pass HTTP requests to .env-specified port or 3000
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);

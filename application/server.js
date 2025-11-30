@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import session from "express-session";
 import MySQLStore from "express-mysql-session";
 // Database stuff i.e. our mysql.pool, which also triggers process.env population
-import { dbConfig } from "./config/db.js"; 
+import pool from "./config/db.js"; 
 // Simple API routers connecting HTTP routes to their respective controllers.
 import tutoringRoutes from './routes/tutoringRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
@@ -30,11 +30,11 @@ const SessionStoreClass = MySQLStore(session);
 
 // Once bound we can instantiate a new sessionStore object
 const sessionStore = new SessionStoreClass({
-  host: dbConfig.host,
-  port: dbConfig.port,
-  user: dbConfig.user,
-  password: dbConfig.password,
-  database: dbConfig.database,
+  host: pool.host,
+  port: pool.port,
+  user: pool.user,
+  password: pool.password,
+  database: pool.database,
 });
 
 app.use(

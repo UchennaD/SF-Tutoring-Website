@@ -13,10 +13,14 @@ export async function emailOTP(req, res) {
         // the long awaited One Time Password! It's just a random 4 digit number at the end of the day
         const otp = String(Math.floor(1000 + Math.random() * 9000));
 
-        // Save the EMAIL | OTP combo into DB for later verification
+        // MANUALLY set expiration +10 min - it's best not to rely on a function in DEFAULT
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
+
+        // Insert  EMAIL | OTP | EXPIRATION combo into DB for later verification
         await pool.query(
-            "INSERT INTO one_time_passcodes (email, passcode) VALUES (?, ?)",
-            [email, otp]
+            `INSERT INTO one_time_passcodes (email, passcode, expires_at)
+            VALUES (?, ?, ?)`,
+            [email, otp, expiresAt]
         );
 
         // Send email using Resend
@@ -80,11 +84,11 @@ export async function verifyOTP(req, res) {
 
 export async function addUser(req, res){
     try {
-        // Extract sessionStorage user info from HTTP request
-        const { first_name, last_name, email, password, role } = req.body;
+        // Extract sessionStorage student info from HTTP request
+        const { fullName, email, password } = req.body;
 
         // Simple double check pre-account creation, one part of name allowed to be null
-        if (!email || !password || !role) {
+        if (!fullName || !email || !password) {
             return res.status(400).json({ success: false, error: "Missing required fields" });
         }
 
@@ -94,15 +98,13 @@ export async function addUser(req, res){
         // Insert the new user into our users table, 
         // (just like bookings table process in bookingController!)
         const [result] = await pool.query(
-            `INSERT INTO users 
-            (first_name, last_name, email, password, role)
-            VALUES (?, ?, ?, ?, ?)`,
+            `INSERT INTO students 
+            (full_name, email, password_hash)
+            VALUES (?, ?, ?)`,
             [
-            first_name || null,
-            last_name || null,
+            fullName,
             email,
-            hashedPassword,
-            role
+            hashedPassword
             ]
         );
 

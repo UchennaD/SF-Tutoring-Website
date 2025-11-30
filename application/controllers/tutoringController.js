@@ -15,20 +15,25 @@ export async function searchTutors(req, res) {
 
     // capitalization agnostic, filter optional SQL query
     const [rows] = await pool.query(
-      `SELECT *
-      FROM tutoring_sessions
-      WHERE
-        (? = '' OR LOWER(JSON_UNQUOTE(JSON_EXTRACT(subjects, '$')))
-        LIKE LOWER(CONCAT('%', ?, '%')))
-        AND (? = '' OR mode = ?)
-        AND (? = '' OR tutor_rating >= ?)
-        AND (? IS NULL OR session_date = ?)
-        AND is_booked = 0`,
+      `SELECT 
+          ts.*,
+          s.full_name AS tutor_name_real,
+          t.rating AS tutor_rating_real
+       FROM tutoring_sessions ts
+       JOIN tutors t ON ts.tutor_id = t.tutor_id
+       JOIN students s ON t.tutor_id = s.id
+       WHERE
+         (? = '' OR LOWER(JSON_UNQUOTE(JSON_EXTRACT(ts.subjects, '$')))
+           LIKE LOWER(CONCAT('%', ?, '%')))
+         AND (? = '' OR ts.mode = ?)
+         AND (? = '' OR t.rating >= ?)
+         AND (? IS NULL OR ts.session_date = ?)
+         AND ts.is_booked = 0`,
       [
-      subject, subject,
-      mode, mode,
-      minrating, safeRating,
-      safeDate, safeDate,
+        subject, subject,
+        mode, mode,
+        minrating, safeRating,
+        safeDate, safeDate
       ]
     );
      // Parse the JSON subjects field into a proper JS array
@@ -48,7 +53,9 @@ export async function searchTutors(req, res) {
 
       return {
         ...r,
-        subjects: parsedSubjects
+        subjects: parsedSubjects,
+        tutor_name_real: r.tutor_name_real,
+        tutor_rating_real: r.tutor_rating_real
       };
     });
 

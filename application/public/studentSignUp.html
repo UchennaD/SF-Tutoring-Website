@@ -31,8 +31,8 @@
             <div class="signup-form">
                 <form>
                     <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" placeholder="John Smith" required>
+                        <label for="full-name">Name</label>
+                        <input type="text" id="full-name" placeholder="John Smith" required>
                     </div>
 
                     <div class="form-group">
@@ -46,8 +46,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="confirmPassword">Confirm Password</label>
-                        <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" placeholder="Confirm password" required>
                     </div>
                     
                     <!-- --------------------------- NOTE ---------------------------------------
@@ -71,15 +71,16 @@
             // create account logic: save all input to sessionStorage and redirect 
             signup.addEventListener('click', async () => {
 
-                // get fullname & split into first + last
-                const fullName = document.getElementById('name').value.trim();
-                const [first, ...rest] = fullName.split(" ");
-                const last = rest.join(" ");
+                // get fullname
+                const name = document.getElementById('full-name').value.trim();
+                // NOTE: DB currently stores one full name – uncomment this to track First + Last separately
+                // const [first, ...rest] = name.split(" ");
+                // const last = rest.join(" ");
 
                 // get remaining info
                 const emailAddress =       document.getElementById("email").value;
                 const password1 =   document.getElementById("password").value;
-                const password2 =   document.getElementById("confirmPassword").value;
+                const password2 =   document.getElementById("confirm-password").value;
 
                 // first, check if passwords match
                 if (password1 !== password2){
@@ -89,12 +90,15 @@
 
                 // if passwords match continue
                 const pendingInfo = {
-                    first_name: first,
-                    last_name: last || null,
+                    fullName: name,
                     email: emailAddress,
                     password: password1,
-                    role: "student"
+                    // role: "student" (NOT needed - base user IS NOW STUDENT by default, not 'user')
                 }
+
+                // --------------------------  TO-DO  --------------------------
+                // save info in DB even before verifying (in case of crash mid-signup) as per Souza's advice
+
                 // save this info so we can pass to backend if OTP succesful
                 sessionStorage.setItem("pendingUserInfo", JSON.stringify(pendingInfo));
 

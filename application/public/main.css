@@ -331,7 +331,7 @@ margin-bottom: 10px;
   outline: none;
 }
 
-.login-btn {
+.login-button {
   width: 100%;
   padding: 12px;
   background-color: #000;
@@ -343,7 +343,7 @@ margin-bottom: 10px;
   transition: background-color 0.3s ease;
 }
 
-.login-btn:hover {
+.login-button:hover {
   background-color: #333;
 }
 

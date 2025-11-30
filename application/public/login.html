@@ -25,18 +25,18 @@
         <div class="login-box">
             <h1>Login</h1>
             <form action="dashboard.html" method="GET">
+
                 <div class="form-group">
-                    <label for="username">USERNAME</label>
-                    <input type="text" id="username" name="username" placeholder="" required>
+                    <label for="emailAddress">EMAIL</label>
+                    <input type="text" id="emailAddress" name="email" placeholder="jsmith@sfsu.edu" required>
                 </div>
 
                 <div class="form-group">
                     <label for="password">PASSWORD</label>
-                    <input type="password" id="password" name="password" placeholder="" required>
+                    <input type="password" id="password" name="password" placeholder="●●●●●●●●●" required>
                 </div>
 
-                <button type="button" class="login-btn"
-                    onclick="window.location.href='dashboard.html'">
+                <button type="button" class="login-button" id="login-button">
                     LOGIN
                 </button>
 
@@ -47,5 +47,45 @@
             </div>
         </div>
     </div>
+    <script>
+        // attach click handler to 
+        document.getElementById('login-button').addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            // convert string to original JSON format, as seen in search.html -> results.js
+            const emailAddress = document.getElementById('emailAddress').value;
+            const passwordValue = document.getElementById('password').value;
+
+            try {
+                // -------------------------------| API FLOW |-------------------------------
+                // fetch -> authRouter.js -> authController.js -> login(email, password) -> |
+                // verify -> store session -> res.SUCCESS/FAILURE                           |
+                // -------------------------------|----------|-------------------------------
+
+                // Step 1: Verify login info via fetch to server login endpoint
+                const loginRes = await fetch("/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: emailAddress,
+                        password: passwordValue
+                    })
+                });
+
+                // Convert response into useful message
+                const loginData = await loginRes.json();
+                if (!loginData.success) {
+                    alert("Failed to verify credentials: " + loginData.error);
+                    return;
+                }
+                // If no failure, redirect to dashboard
+                window.location.href = "dashboard.html";
+
+            } catch (err) {
+                console.error("OTP verification error:", err);
+                alert("Server error verifying code.");
+            }
+        });
+    </script>
 </body>
 </html>

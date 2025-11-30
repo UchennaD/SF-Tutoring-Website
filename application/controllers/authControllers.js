@@ -140,4 +140,73 @@ export async function login(req, res) {
     const { email, password } = req.body;
     console.log("Email received: " + email); 
     console.log("Password received: " + password);
+
+    // Input Validation (we need something to lookup & compare)
+    if (!email || !password) {
+        return res.status(400).json({
+            success: false,
+            error: "Email and password required"
+        });
+    }
+
+    try {
+        // STEP 1: select first entry matching email (should only be one since we enforce uniqueness)
+        const [rows] = await pool.query(
+            "SELECT * FROM students WHERE email = ? LIMIT 1",
+            [email]
+        );
+
+        // Respond with failure if query fails to find a match. Response Status = failure
+        if (rows.length === 0) {
+            return res.status(401).json({
+                success: false,
+                error: "Invalid email or password"
+            });
+        }
+        
+        // STEP 2: Compare plaintext password with stored hash (of first matching row)
+        const student = rows[0];
+        const passwordMatches = await bcrypt.compare(password, student.password_hash);
+
+        // Respond with failure if user entered incorrect password
+        if (!passwordMatches) {
+            return res.status(401).json({
+                success: false,
+                error: "Invalid email or password"
+            });
+        }
+
+        // STEP 3: ALSO check tutors table using students.id (tutor_id's foreign key) to determined privileges
+        const [tutorRows] = await pool.query(
+            "SELECT * FROM tutors WHERE tutor_id = ? LIMIT 1",
+            [student.id]
+        );
+        const isTutor = tutorRows.length > 0;
+
+        // STEP 4: Store the minimum identifying info in SESSION
+        req.session.user = {
+            id: student.id,
+            email: student.email,
+            fullName: student.full_name
+        };
+
+        // diagnostic stuff - can delete later 
+        console.log("Login successful for:", req.session.user);
+
+        // STEP 5: Send SUCCESS response to frontend
+        return res.json({
+            success: true,
+            message: "Login successful",
+            user: req.session.user,
+            role: isTutor ? "tutor" : "student"
+        });
+        // DONE :) 
+
+    } catch (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({
+            success: false,
+            error: "Server error during login"
+        });
+    }
 }

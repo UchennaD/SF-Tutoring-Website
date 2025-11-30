@@ -137,9 +137,9 @@ export async function addUser(req, res){
 // 1. verify credentials 
 // 2. initiate session & state tracking on server
 export async function login(req, res) {
+
+    // Extract login credentials from request body
     const { email, password } = req.body;
-    console.log("Email received: " + email); 
-    console.log("Password received: " + password);
 
     // Input Validation (we need something to lookup & compare)
     if (!email || !password) {
@@ -150,25 +150,27 @@ export async function login(req, res) {
     }
 
     try {
-        // STEP 1: select first entry matching email (should only be one since we enforce uniqueness)
+        // STEP 1: Select student entry with matching email ('limit' is redundant since we enforce uniqueness)
         const [rows] = await pool.query(
             "SELECT * FROM students WHERE email = ? LIMIT 1",
             [email]
         );
 
-        // Respond with failure if query fails to find a match. Response Status = failure
+        // Respond with failure status if no match found
         if (rows.length === 0) {
             return res.status(401).json({
                 success: false,
                 error: "Invalid email or password"
             });
         }
-        
-        // STEP 2: Compare plaintext password with stored hash (of first matching row)
+
+        // Extract the lone entry row
         const student = rows[0];
+
+        // STEP 2: Compare login password to hashed password from selected entry
         const passwordMatches = await bcrypt.compare(password, student.password_hash);
 
-        // Respond with failure if user entered incorrect password
+        // (respond with failure if passwords don't match)
         if (!passwordMatches) {
             return res.status(401).json({
                 success: false,
@@ -176,31 +178,39 @@ export async function login(req, res) {
             });
         }
 
-        // STEP 3: ALSO check tutors table using students.id (tutor_id's foreign key) to determined privileges
+        // STEP 3: Check if student is also a tutor (to enable tutor privileges)
         const [tutorRows] = await pool.query(
             "SELECT * FROM tutors WHERE tutor_id = ? LIMIT 1",
-            [student.id]
+            [student.id] // select matching tutor entry via mutual ID
         );
         const isTutor = tutorRows.length > 0;
 
-        // STEP 4: Store the minimum identifying info in SESSION
+        // STEP 4: Create server-side session object for this user
         req.session.user = {
             id: student.id,
             email: student.email,
-            fullName: student.full_name
+            fullName: student.full_name,
+            role: isTutor ? "tutor" : "student"
         };
 
-        // diagnostic stuff - can delete later 
-        console.log("Login successful for:", req.session.user);
+        // STEP 5: Persist session to MySQL session store in DB
+        req.session.save(err => {
+            // Respond with failure if session cannot be saved
+            if (err) {
+                console.error("Session save failed:", err);
+                return res.status(500).json({
+                    success: false,
+                    error: "Session save failed"
+                });
+            }
 
-        // STEP 5: Send SUCCESS response to frontend
-        return res.json({
-            success: true,
-            message: "Login successful",
-            user: req.session.user,
-            role: isTutor ? "tutor" : "student"
+            // If session saved, respond with success!
+            return res.json({
+                success: true,
+                message: "Login successful",
+                user: req.session.user
+            });
         });
-        // DONE :) 
 
     } catch (err) {
         console.error("Login error:", err);

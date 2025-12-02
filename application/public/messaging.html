@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Gator Tutors</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header id="mainHeader">
+        <div id="header-left">
+            <img src="resources/SFSUSeal.png" id="SFSUSeal" alt="SFSU Seal">
+            <h2 id="siteTitle">
+                <a id="homeLink" href="dashboard.html">Gator Tutors</a>
+            </h2>
+        </div>
+        <div id="header-right">
+            <a href="search.html" id="homeLink">Find a Tutor</a>
+        </div>
+    </header>
+
+    <!-- MESSAGING LAYOUT -->
+    <div id="messagingContainer">
+        <!-- Conversations List -->
+        <div id="conversationsList" class="conversations-panel">
+            <h2>Messages</h2>
+            <div class="search-conversations">
+                <input type="text" id="searchConvo" placeholder="Search conversations...">
+            </div>
+            <div id="conversationsListContent">
+                <!-- Conversations will be populated here -->
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div id="chatWindow" class="chat-panel">
+            <div id="chatHeader" class="chat-header">
+                <h2 id="chatTitle">Select a conversation</h2>
+                <button id="backButton" class="back-button" style="display:none;">← Back</button>
+            </div>
+            <div id="messagesContainer" class="messages-container">
+                <p class="no-message-placeholder">Select a conversation to start messaging</p>
+            </div>
+            <div id="inputContainer" class="message-input-container" style="display:none;">
+                <input type="text" id="messageInput" placeholder="Type a message..." class="message-input">
+                <button id="sendButton" class="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fake messaging data
+        const conversations = {
+            carlos: {
+                name: "Carlos Sinclaire",
+                role: "Math Tutor, PhD",
+                lastMessage: "See you at 3 PM tomorrow!",
+                avatar: "👨‍🏫",
+                messages: [
+                    { sender: "Carlos", text: "Hi! Looking forward to our session tomorrow.", timestamp: "10:30 AM" },
+                    { sender: "You", text: "Yes! I'm ready for the calculus review.", timestamp: "10:35 AM" },
+                    { sender: "Carlos", text: "Great! Make sure to bring your notes.", timestamp: "10:40 AM" },
+                    { sender: "You", text: "Will do! See you at 3 PM.", timestamp: "10:45 AM" },
+                    { sender: "Carlos", text: "See you at 3 PM tomorrow!", timestamp: "10:50 AM" }
+                ]
+            },
+            john: {
+                name: "John Boomer",
+                role: "Physics Tutor",
+                lastMessage: "I'll send you the practice problems.",
+                avatar: "👨‍🎓",
+                messages: [
+                    { sender: "John", text: "How are you doing with mechanics?", timestamp: "9:15 AM" },
+                    { sender: "You", text: "Still struggling with Newton's laws.", timestamp: "9:20 AM" },
+                    { sender: "John", text: "That's common. Let me break it down for you.", timestamp: "9:25 AM" },
+                    { sender: "John", text: "I'll send you the practice problems.", timestamp: "9:30 AM" }
+                ]
+            },
+            sarah: {
+                name: "Sarah Chen",
+                role: "Chemistry Tutor",
+                lastMessage: "Looking forward to meeting you!",
+                avatar: "👩‍🔬",
+                messages: [
+                    { sender: "Sarah", text: "Hi! I'm your new chemistry tutor.", timestamp: "Yesterday" },
+                    { sender: "You", text: "Nice to meet you! When can we start?", timestamp: "Yesterday" },
+                    { sender: "Sarah", text: "How about this Friday at 2 PM?", timestamp: "Yesterday" },
+                    { sender: "You", text: "Perfect! See you then.", timestamp: "Yesterday" },
+                    { sender: "Sarah", text: "Looking forward to meeting you!", timestamp: "Yesterday" }
+                ]
+            },
+            mike: {
+                name: "Mike Rodriguez",
+                role: "History Tutor",
+                lastMessage: "That essay looks great!",
+                avatar: "👨‍🏫",
+                messages: [
+                    { sender: "Mike", text: "How's that essay coming along?", timestamp: "2 days ago" },
+                    { sender: "You", text: "Almost done! Just need to proofread.", timestamp: "2 days ago" },
+                    { sender: "Mike", text: "That essay looks great!", timestamp: "2 days ago" }
+                ]
+            }
+        };
+
+        let currentConversation = null;
+
+        // Initialize the page
+        function initializeMessaging() {
+            renderConversationsList();
+            setupEventListeners();
+        }
+
+        // Render conversations list
+        function renderConversationsList() {
+            const container = document.getElementById('conversationsListContent');
+            container.innerHTML = '';
+
+            Object.entries(conversations).forEach(([key, conv]) => {
+                const convElement = document.createElement('div');
+                convElement.className = 'conversation-item';
+                convElement.innerHTML = `
+                    <div class="conversation-avatar">${conv.avatar}</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">${conv.name}</div>
+                        <div class="conversation-role">${conv.role}</div>
+                        <div class="conversation-preview">${conv.lastMessage}</div>
+                    </div>
+                `;
+                convElement.addEventListener('click', () => openConversation(key));
+                container.appendChild(convElement);
+            });
+        }
+
+        // Open a conversation
+        function openConversation(convKey) {
+            currentConversation = convKey;
+            const conv = conversations[convKey];
+
+            document.getElementById('chatTitle').textContent = `${conv.name}`;
+            document.getElementById('messagesContainer').innerHTML = '';
+            document.getElementById('inputContainer').style.display = 'flex';
+            document.getElementById('messageInput').value = '';
+
+            // Render messages
+            conv.messages.forEach(msg => {
+                const msgElement = document.createElement('div');
+                msgElement.className = `message ${msg.sender === 'You' ? 'sent' : 'received'}`;
+                msgElement.innerHTML = `
+                    <div class="message-sender">${msg.sender}</div>
+                    <div class="message-text">${msg.text}</div>
+                    <div class="message-time">${msg.timestamp}</div>
+                `;
+                document.getElementById('messagesContainer').appendChild(msgElement);
+            });
+
+            // Scroll to bottom
+            document.getElementById('messagesContainer').scrollTop = document.getElementById('messagesContainer').scrollHeight;
+
+            // Hide placeholder
+            document.querySelectorAll('.no-message-placeholder').forEach(el => el.remove());
+        }
+
+        // Send a message
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+
+            if (!text || !currentConversation) return;
+
+            // Add message to conversation
+            const conv = conversations[currentConversation];
+            const now = new Date();
+            const timestamp = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+            conv.messages.push({
+                sender: 'You',
+                text: text,
+                timestamp: timestamp
+            });
+
+            // Add message to chat
+            const msgElement = document.createElement('div');
+            msgElement.className = 'message sent';
+            msgElement.innerHTML = `
+                <div class="message-sender">You</div>
+                <div class="message-text">${text}</div>
+                <div class="message-time">${timestamp}</div>
+            `;
+            document.getElementById('messagesContainer').appendChild(msgElement);
+
+            // Clear input
+            input.value = '';
+
+            // Scroll to bottom
+            document.getElementById('messagesContainer').scrollTop = document.getElementById('messagesContainer').scrollHeight;
+
+            // Simulate a reply after 1 second
+            setTimeout(() => {
+                const tutor = conv.name.split(' ')[0];
+                const replies = [
+                    `Thanks for the message!`,
+                    `Sounds good to me!`,
+                    `Let me know if you need anything else.`,
+                    `I'll get back to you on that.`,
+                    `Perfect! See you soon!`
+                ];
+                const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                const replyTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+                conv.messages.push({
+                    sender: tutor,
+                    text: randomReply,
+                    timestamp: replyTime
+                });
+
+                const replyElement = document.createElement('div');
+                replyElement.className = 'message received';
+                replyElement.innerHTML = `
+                    <div class="message-sender">${tutor}</div>
+                    <div class="message-text">${randomReply}</div>
+                    <div class="message-time">${replyTime}</div>
+                `;
+                document.getElementById('messagesContainer').appendChild(replyElement);
+
+                // Update last message
+                conv.lastMessage = randomReply;
+                renderConversationsList();
+
+                // Scroll to bottom
+                document.getElementById('messagesContainer').scrollTop = document.getElementById('messagesContainer').scrollHeight;
+            }, 1000);
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('sendButton').addEventListener('click', sendMessage);
+            document.getElementById('messageInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            document.getElementById('searchConvo').addEventListener('input', (e) => {
+                const search = e.target.value.toLowerCase();
+                document.querySelectorAll('.conversation-item').forEach(item => {
+                    const name = item.querySelector('.conversation-name').textContent.toLowerCase();
+                    item.style.display = name.includes(search) ? 'flex' : 'none';
+                });
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeMessaging);
+    </script>
+</body>
+</html>

@@ -111,76 +111,182 @@ a#homeLink {
 .sidebar {
   width: 230px;
   height: 100vh;
-  background: #f9f5e9;
+  background: linear-gradient(180deg, #eec451 0%, #f9f5e9 100%);
   color: #333;
   position: fixed;
   display: flex;
   flex-direction: column;
   padding: 20px;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar h2 {
-margin-bottom: 30px;
-text-align: center;
+  margin-bottom: 30px;
+  text-align: center;
+  font-family: "Graduate", "Segoe UI", sans-serif;
+  font-size: 22px;
+  color: #222;
+  font-weight: 700;
 }
 
 .sidebar a {
-text-decoration: none;
-color: #17181a;
-padding: 12px 0;
-display: block;
-border-radius: 6px;
+  text-decoration: none;
+  color: #333;
+  padding: 12px 15px;
+  display: block;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar a:hover {
+  background-color: #eec451;
+  color: #222;
 }
 
 .main {
-margin-left: 270px;
-padding: 25px;
+  margin-left: 270px;
+  padding: 40px;
+  background-color: #fff;
+  min-height: 100vh;
 }
 
+.main h1 {
+  font-family: "Graduate", "Segoe UI", sans-serif;
+  font-size: 32px;
+  color: #222;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
 
 .cards {
-display: grid;
-grid-auto-flow: column;
-grid-auto-columns: minmax(200px, 1fr);
-gap: 20px;
-padding-top: 20px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(320px, 1fr);
+  gap: 30px;
+  padding-top: 20px;
 }
 
 .card {
-background: white;
-border-radius: 12px;
-padding: 20px;
-height : 490px;
-box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: linear-gradient(135deg, #f9f5e9 0%, #fffdf3 100%);
+  border-radius: 12px;
+  padding: 25px;
+  min-height: 490px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0d6a8;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .card h3 {
-margin-top: 0;
-margin-bottom: 10px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 20px;
+  color: #222;
+  font-weight: 600;
+  font-family: "Graduate", "Segoe UI", sans-serif;
+}
+
+.card h4 {
+  font-size: 18px;
+  color: #222;
+  margin: 15px 0 8px 0;
+  font-weight: 600;
+}
+
+.card p {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 10px 0;
+}
+
+.tutor-bio {
+  color: #555;
+  line-height: 1.8;
+  font-style: italic;
 }
 
 .appt {
-  border: 1px solid #ccc;
+  border: 2px solid #eec451;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 25px;
-  background: #f8f8f8;
+  padding: 18px;
+  margin-bottom: 20px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(238, 196, 81, 0.1);
 }
-.appt h2 { margin: 0 0 10px 0; }
+
+.appt h2 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #222;
+  font-weight: 600;
+}
+
+.appt p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
 .appt button {
   margin-right: 10px;
+  margin-top: 10px;
   padding: 8px 14px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.3s ease;
 }
 
-.msg-btn { background: #4a90e2; color: white; }
-.cancel-btn { background: #d9534f; color: white; }
+.msg-btn {
+  background: #4a90e2;
+  color: white;
+}
+
+.msg-btn:hover {
+  background: #357abd;
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background: #d9534f;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #c9302c;
+  transform: translateY(-1px);
+}
 
 .scroll {
-  max-height: 90%;
+  max-height: 85%;
   overflow-y: auto;
+  padding-right: 10px;
+}
+
+.scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background: #eec451;
+  border-radius: 4px;
+}
+
+.scroll::-webkit-scrollbar-thumb:hover {
+  background: #e6b800;
 }
 
 /* =========================================================
@@ -718,12 +824,14 @@ h3 {
 
 /* Tutors viewing students notes */
 
-  #notesLayout {
+#notesLayout {
     display: flex;
     flex-direction: row;
-    gap: 5px;
-    padding-top: 5px;
+    gap: 15px;
+    padding: 30px;
     width: 100%;
+    background-color: #fff;
+    min-height: calc(100vh - 80px);
 }
 
 /* Column sizes */
@@ -741,42 +849,82 @@ h3 {
 
 /* Shared column styling */
 .column {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    min-height: 400px;
+    padding: 20px;
+    border: 2px solid #eec451;
+    border-radius: 12px;
+    min-height: 500px;
+    background: linear-gradient(135deg, #f9f5e9 0%, #fffdf3 100%);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.column h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-family: "Graduate", "Segoe UI", sans-serif;
+    font-size: 18px;
+    color: #222;
+    font-weight: 600;
+    border-bottom: 2px solid #eec451;
+    padding-bottom: 12px;
 }
 
 /* Buttons */
 .studentBtn {
     border-radius: 8px;
     width: 90%;
-    padding: 10px;
+    padding: 12px 15px;
     margin: 0 auto 10px auto;
     display: block;
     text-align: left;
     cursor: pointer;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.studentBtn:hover {
+    border-color: #eec451;
+    background-color: #fffdf3;
 }
 
 .filterBtn{
     border-radius: 30px;
-    width: 50%;
+    width: 80%;
     padding: 10px;
-    margin: 0 auto 10px auto;
+    margin: 0 auto 15px auto;
     display: block;
-    background-color: #000;
-    color: white;
+    background-color: #eec451;
+    color: #222;
     cursor: pointer;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.filterBtn:hover {
+    background-color: #ffcf01;
+    transform: translateY(-2px);
 }
 
 #noteContent {
     white-space: pre-wrap;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #666;
+    font-style: italic;
 }
 
 .studentBtn.selected {
-    background-color: #858378;
-    color: white;
+    background-color: #eec451;
+    color: #222;
     font-weight: 700;
+    border-color: #eec451;
 }
 
 .sessionBtn.selected {
@@ -788,17 +936,28 @@ h3 {
 .noteBtn {
     border-radius: 8px;
     width: 90%;             
-    padding: 10px;
+    padding: 12px 15px;
     margin: 0 auto 10px auto; 
     display: block;         
     text-align: left;
     cursor: pointer;
+    background-color: #fff;
+    border: 2px solid #ddd;
+    color: #333;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.noteBtn:hover {
+    border-color: #eec451;
+    background-color: #fffdf3;
 }
 
 .noteBtn.selected {
-    background-color: #858378;
-    color: white;
+    background-color: #eec451;
+    color: #222;
     font-weight: 700;
+    border-color: #eec451;
 }
 
 /* Note display area */
@@ -806,6 +965,7 @@ h3 {
     display: flex;              
     justify-content: center;    
     align-items: center;        
+    overflow: auto;
 }
 
 #noteContent {
@@ -817,6 +977,431 @@ h3 {
     max-width: 100%;            
     max-height: 90vh;           
     object-fit: contain;        
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================================================
+   MESSAGING PAGE
+   ========================================================= */
+
+#messagingContainer {
+    display: flex;
+    height: calc(100vh - 80px);
+    gap: 0;
+    background-color: #fff;
+}
+
+.conversations-panel {
+    flex: 0 0 300px;
+    background: linear-gradient(180deg, #f9f5e9 0%, #fffdf3 100%);
+    border-right: 2px solid #eec451;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.conversations-panel h2 {
+    margin: 20px;
+    font-family: "Graduate", "Segoe UI", sans-serif;
+    font-size: 22px;
+    color: #222;
+    font-weight: 700;
+}
+
+.search-conversations {
+    padding: 0 15px 15px;
+}
+
+.search-conversations input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #eec451;
+    border-radius: 8px;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.search-conversations input:focus {
+    outline: none;
+    border-color: #ffcf01;
+    box-shadow: 0 0 5px rgba(255, 207, 1, 0.3);
+}
+
+#conversationsListContent {
+    overflow-y: auto;
+    flex: 1;
+    padding: 0 10px;
+}
+
+.conversation-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+    background-color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.conversation-item:hover {
+    background-color: #fffdf3;
+    border-color: #eec451;
+    transform: translateX(4px);
+}
+
+.conversation-avatar {
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.conversation-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.conversation-name {
+    font-weight: 600;
+    color: #222;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.conversation-role {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 4px;
+}
+
+.conversation-preview {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #eec451 0%, #ffedbb 100%);
+    padding: 20px;
+    border-bottom: 2px solid #e6b800;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h2 {
+    margin: 0;
+    font-family: "Graduate", "Segoe UI", sans-serif;
+    font-size: 22px;
+    color: #222;
+    font-weight: 700;
+}
+
+.back-button {
+    background-color: #222;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #444;
+}
+
+.messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: #fffdf3;
+}
+
+.no-message-placeholder {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    margin: auto;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    animation: messageSlideIn 0.3s ease;
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.sent {
+    align-items: flex-end;
+}
+
+.message.received {
+    align-items: flex-start;
+}
+
+.message-sender {
+    font-size: 11px;
+    color: #999;
+    margin-bottom: 4px;
+}
+
+.message-text {
+    padding: 12px 16px;
+    border-radius: 12px;
+    word-wrap: break-word;
+    max-width: 70%;
+    font-size: 14px;
+}
+
+.message.sent .message-text {
+    background-color: #eec451;
+    color: #222;
+    font-weight: 500;
+}
+
+.message.received .message-text {
+    background-color: #e8e8e8;
+    color: #222;
+}
+
+.message-time {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+}
+
+.message-input-container {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    background: linear-gradient(180deg, #fff 0%, #f9f5e9 100%);
+    border-top: 2px solid #eec451;
+}
+
+.message-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.message-input:focus {
+    outline: none;
+    border-color: #eec451;
+    box-shadow: 0 0 5px rgba(238, 196, 81, 0.3);
+}
+
+.send-button {
+    padding: 12px 24px;
+    background-color: #eec451;
+    color: #222;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.send-button:hover {
+    background-color: #ffcf01;
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #messagingContainer {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .conversations-panel {
+        flex: 0 0 auto;
+        max-height: 250px;
+        border-right: none;
+        border-bottom: 2px solid #eec451;
+    }
+
+    .chat-panel {
+        height: 500px;
+    }
+
+    .message-text {
+        max-width: 85%;
+    }
+}
+
+/* =========================================================
+   TUTOR SIGNUP PAGE
+   ========================================================= */
+
+.tutor-signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 80px);
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #ffedbb 0%, #fffdf3 100%);
+}
+
+.tutor-signup-box {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 50px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    border: 2px solid #eec451;
+}
+
+.tutor-signup-box h1 {
+    text-align: center;
+    font-family: "Graduate", "Segoe UI", sans-serif;
+    font-size: 32px;
+    color: #222;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.tutor-signup-subtitle {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 35px;
+    font-style: italic;
+}
+
+.tutor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.tutor-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tutor-form label {
+    font-weight: 600;
+    color: #222;
+    font-size: 14px;
+}
+
+.tutor-form input {
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: "Segoe UI", sans-serif;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box;
+}
+
+.tutor-form input:focus {
+    outline: none;
+    border-color: #eec451;
+    box-shadow: 0 0 8px rgba(238, 196, 81, 0.3);
+}
+
+.tutor-form small {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+}
+
+.tutor-submit-btn {
+    padding: 14px;
+    background-color: #eec451;
+    color: #222;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.tutor-submit-btn:hover {
+    background-color: #ffcf01;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(238, 196, 81, 0.3);
+}
+
+.tutor-submit-btn:active {
+    transform: translateY(0);
+}
+
+.tutor-login-link {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 14px;
+    color: #666;
+}
+
+.tutor-login-link a {
+    color: #eec451;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.tutor-login-link a:hover {
+    color: #ffcf01;
+    text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .tutor-signup-box {
+        padding: 30px 25px;
+        max-width: 100%;
+    }
+
+    .tutor-signup-box h1 {
+        font-size: 24px;
+    }
+
+    .tutor-signup-subtitle {
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+
+    .tutor-form {
+        gap: 20px;
+    }
 }
 
 /* =========================================================

@@ -13,10 +13,14 @@ export async function emailOTP(req, res) {
         // the long awaited One Time Password! It's just a random 4 digit number at the end of the day
         const otp = String(Math.floor(1000 + Math.random() * 9000));
 
-        // Save the EMAIL | OTP combo into DB for later verification
+        // MANUALLY set expiration +10 min - it's best not to rely on a function in DEFAULT
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
+
+        // Insert  EMAIL | OTP | EXPIRATION combo into DB for later verification
         await pool.query(
-            "INSERT INTO one_time_passcodes (email, passcode) VALUES (?, ?)",
-            [email, otp]
+            `INSERT INTO one_time_passcodes (email, passcode, expires_at)
+            VALUES (?, ?, ?)`,
+            [email, otp, expiresAt]
         );
 
         // Send email using Resend
@@ -80,11 +84,11 @@ export async function verifyOTP(req, res) {
 
 export async function addUser(req, res){
     try {
-        // Extract sessionStorage user info from HTTP request
-        const { first_name, last_name, email, password, role } = req.body;
+        // Extract sessionStorage student info from HTTP request
+        const { fullName, email, password } = req.body;
 
         // Simple double check pre-account creation, one part of name allowed to be null
-        if (!email || !password || !role) {
+        if (!fullName || !email || !password) {
             return res.status(400).json({ success: false, error: "Missing required fields" });
         }
 
@@ -94,15 +98,13 @@ export async function addUser(req, res){
         // Insert the new user into our users table, 
         // (just like bookings table process in bookingController!)
         const [result] = await pool.query(
-            `INSERT INTO users 
-            (first_name, last_name, email, password, role)
-            VALUES (?, ?, ?, ?, ?)`,
+            `INSERT INTO students 
+            (full_name, email, password_hash)
+            VALUES (?, ?, ?)`,
             [
-            first_name || null,
-            last_name || null,
+            fullName,
             email,
-            hashedPassword,
-            role
+            hashedPassword
             ]
         );
 
@@ -135,7 +137,86 @@ export async function addUser(req, res){
 // 1. verify credentials 
 // 2. initiate session & state tracking on server
 export async function login(req, res) {
+
+    // Extract login credentials from request body
     const { email, password } = req.body;
-    console.log("Email received: " + email); 
-    console.log("Password received: " + password);
+
+    // Input Validation (we need something to lookup & compare)
+    if (!email || !password) {
+        return res.status(400).json({
+            success: false,
+            error: "Email and password required"
+        });
+    }
+
+    try {
+        // STEP 1: Select student entry with matching email ('limit' is redundant since we enforce uniqueness)
+        const [rows] = await pool.query(
+            "SELECT * FROM students WHERE email = ? LIMIT 1",
+            [email]
+        );
+
+        // Respond with failure status if no match found
+        if (rows.length === 0) {
+            return res.status(401).json({
+                success: false,
+                error: "Invalid email or password"
+            });
+        }
+
+        // Extract the lone entry row
+        const student = rows[0];
+
+        // STEP 2: Compare login password to hashed password from selected entry
+        const passwordMatches = await bcrypt.compare(password, student.password_hash);
+
+        // (respond with failure if passwords don't match)
+        if (!passwordMatches) {
+            return res.status(401).json({
+                success: false,
+                error: "Invalid email or password"
+            });
+        }
+
+        // STEP 3: Check if student is also a tutor (to enable tutor privileges)
+        const [tutorRows] = await pool.query(
+            "SELECT * FROM tutors WHERE tutor_id = ? LIMIT 1",
+            [student.id] // select matching tutor entry via mutual ID
+        );
+        const isTutor = tutorRows.length > 0;
+
+        // STEP 4: Create server-side session object for this user
+        req.session.user = {
+            id: student.id,
+            email: student.email,
+            fullName: student.full_name,
+            role: isTutor ? "tutor" : "student"
+        };
+
+        // STEP 5: Persist session to MySQL session store in DB
+        req.session.save(err => {
+            // Respond with failure if session cannot be saved
+            if (err) {
+                console.error("Session save failed:", err);
+                return res.status(500).json({
+                    success: false,
+                    error: "Session save failed"
+                });
+            }
+
+            // If session saved, respond with success!
+            return res.json({
+                success: true,
+                message: "Login successful",
+                user: req.session.user
+            });
+        });
+
+    } catch (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({
+            success: false,
+            error: "Server error during login"
+        });
+    }
 }

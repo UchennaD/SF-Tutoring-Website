@@ -437,7 +437,7 @@ a#homeLink {
   outline: none;
 }
 
-.login-btn {
+.login-button {
   width: 100%;
   padding: 12px;
   background-color: #000;
@@ -449,7 +449,7 @@ a#homeLink {
   transition: background-color 0.3s ease;
 }
 
-.login-btn:hover {
+.login-button:hover {
   background-color: #333;
 }
 

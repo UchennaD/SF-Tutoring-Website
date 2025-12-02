@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import session from "express-session";
 import MySQLStore from "express-mysql-session";
 // Database stuff i.e. our mysql.pool, which also triggers process.env population
-import { dbConfig } from "./config/db.js"; 
+import pool from "./config/db.js"; 
 // Simple API routers connecting HTTP routes to their respective controllers.
 import tutoringRoutes from './routes/tutoringRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
@@ -28,13 +28,17 @@ app.use(express.json());
 // weird old school wrapper function that exports MySQLStore class
 const SessionStoreClass = MySQLStore(session); 
 
-// Once bound we can instantiate a new sessionStore object
+// Create MySQL session store using RDS creds directly
 const sessionStore = new SessionStoreClass({
-  host: dbConfig.host,
-  port: dbConfig.port,
-  user: dbConfig.user,
-  password: dbConfig.password,
-  database: dbConfig.database,
+  // use .env values directly
+  host: process.env.DB_HOST, 
+  port: process.env.DB_PORT || 3306, 
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  clearExpired: true,
+  checkExpirationInterval: 900000, // 15 min
+  expiration: 86400000 // 24 hours
 });
 
 app.use(

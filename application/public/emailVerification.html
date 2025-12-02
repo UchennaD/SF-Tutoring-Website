@@ -33,7 +33,7 @@
                 <input type="text" class="digit-box" maxlength="1" inputmode="numeric" placeholder="0" />
                 <input type="text" class="digit-box" maxlength="1" inputmode="numeric" placeholder="0" />
             </div>
-            <a href="login.html" id="enterButton">Enter</a>
+            <button id="enterButton" type="button">Enter</button>
         </div>
     </div>
 
@@ -117,7 +117,8 @@
                 // Step 3: Clear this code from sessionStorage for security 
                 sessionStorage.removeItem("pendingUserInfo");
                 // Non-lazy signup: send student to their dashboard (maybe send to search in the future?)
-                window.location.href = "dashboard.html";
+                // 11-28-25 Revision: Make student login  *** FOR NOW *** so they can get session handling
+                window.location.href = "login.html";
 
             } catch (err) {
                 console.error("OTP verification error:", err);

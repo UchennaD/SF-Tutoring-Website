@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
                 // The values to be injected into 'bookings' table
                 const payload = {
-                    student_id: 1,  // TODO: replace with real user ID after login system
+                    student_id: 1,  // TO-DO: replace with real user ID after login system
                     tutor_id: tutor.tutor_id,
                     session_id: tutor.id
                 };

@@ -152,7 +152,7 @@ export async function login(req, res) {
     try {
         // STEP 1: Select student entry with matching email ('limit' is redundant since we enforce uniqueness)
         const [rows] = await pool.query(
-            "SELECT * FROM students WHERE email = ? LIMIT 1",
+            `SELECT * FROM students WHERE email = ? LIMIT 1`,
             [email]
         );
 
@@ -180,7 +180,7 @@ export async function login(req, res) {
 
         // STEP 3: Check if student is also a tutor (to enable tutor privileges)
         const [tutorRows] = await pool.query(
-            "SELECT * FROM tutors WHERE tutor_id = ? LIMIT 1",
+            `SELECT * FROM tutors WHERE tutor_id = ? LIMIT 1`,
             [student.id] // select matching tutor entry via mutual ID
         );
         const isTutor = tutorRows.length > 0;

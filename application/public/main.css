@@ -827,8 +827,9 @@ h3 {
 #notesLayout {
     display: flex;
     flex-direction: row;
+    padding-top: 10px;
+    padding-bottom: 10px;
     gap: 15px;
-    padding: 30px;
     width: 100%;
     background-color: #fff;
     min-height: calc(100vh - 80px);

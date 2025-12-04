@@ -32,35 +32,11 @@
         <div class="cards">
             <div class="card">
                 <h3>Upcoming Sessions</h3>
-                <div class="scroll">
-                    <div class="appt">
-                        <h2>Tuesday, November 18th 2025</h2>
-                        <p><strong>MATH tutor session</strong></p>
-                        <p>Carlos Sinclaire, PhD</p>
-                        <button class="msg-btn">Message Carlos</button>
-                        <button class="cancel-btn">Cancel Appointment</button>
-                    </div>
-                    <div class="appt">
-                        <h2>Friday, November 21st 2025</h2>
-                        <p><strong>MATH tutor session</strong></p>
-                        <p>Carlos Sinclaire, PhD</p>
-                        <button class="msg-btn">Message Carlos</button>
-                        <button class="cancel-btn">Cancel Appointment</button>
-                    </div>
-                
-
-                    <!-- Appointment 2 -->
-                    <div class="appt">
-                        <h2>Wednesday, November 21th 2025</h2>
-                        <p><strong>PHYS tutor session</strong></p>
-                        <p>John Boomer</p>
-                        <button class="msg-btn">Message John</button>
-                        <button class="cancel-btn">Cancel Appointment</button>
-                    </div>
-                </div>    
+                <div class="scroll" id="upcoming-sessions">
+                    <!-- Dynamic content -->
+                </div>
             </div>
-
-
+                    
             <div class="card">
                 <h3>Inbox</h3>
                 <p>No new messages</p>
@@ -78,12 +54,47 @@
                     guidance in preparing for internships.
                 </p>
             </div>
-
-
         </div>
     </div>
-</div>
 
+    <script>
+        async function loadUpcomingSessions() {
+            try {
+                const studentID = 1;    //Temporary placeholder, will be replaced with logged-in student ID
+                const res = await fetch(`/api/dashboard/upcoming-sessions/${studentID}`);
+                const data = await res.json();
+
+                const container = document.getElementById('upcoming-sessions');
+                container.innterHTML = '';
+
+                if (data.success && data.upcoming.length > 0) {
+                    data.upcoming.forEach(session => {
+                        const div = document.createElement('div');
+                        div.classList.add('appt');
+                        div.innerHTML = `
+                            <h2>${new Date(session.session_date).toLocaleDateString('en-US'), {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            }}</h2>
+                            <p><strong>${session.subjects} tutor session</strong></p>
+                            <p>${session.tutor_name}</p>
+                            <button class="msg-btn">Message ${session.tutor_name.split(' '[0])}</button>
+                            <button class="cancel-btn">Cancel Appointment</button>
+                            `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = '<p>No upcoming sessions</p>';
+                }
+            } catch (err) {
+                console.error('Error loading sessions:', err);
+            }
+        }
+
+        loadUpcomingSessions();
+    </script>
 
 
 </body>

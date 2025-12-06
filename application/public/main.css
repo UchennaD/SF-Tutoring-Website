@@ -106,7 +106,7 @@ a#homeLink {
 }
 
 /* =========================================================
-   DASHBOARD PAGE
+   STUDENT DASHBOARD PAGE
    ========================================================= */
 .sidebar {
   width: 230px;
@@ -1849,4 +1849,50 @@ h3 {
   .project-details {
     grid-template-columns: 1fr;
   }
+}
+
+/* =========================================================
+   TUTOR DASHBOARD PAGE - PURPLE THEME
+   ========================================================= */
+body.tutor-theme {
+  background-color: #f4e8ff;
+}
+
+body.tutor-theme #mainHeader {
+  background-color: #d4a5f5;
+  border-bottom: 1px solid #c99ee5;
+}
+
+body.tutor-theme a#homeLink {
+  color: #333;
+}
+
+body.tutor-theme #header-right a {
+  color: #333;
+}
+
+body.tutor-theme #header-right a:hover {
+  color: #6b21a8;
+}
+
+body.tutor-theme #siteTitle {
+  color: #333;
+}
+
+body.tutor-theme .sidebar {
+  background: linear-gradient(180deg, #d4a5f5 0%, #f4e8ff 100%);
+  color: #333;
+}
+
+body.tutor-theme .sidebar h2 {
+  color: #333;
+}
+
+body.tutor-theme .sidebar a {
+  color: #333;
+}
+
+body.tutor-theme .sidebar a:hover {
+  background-color: #d4a5f5;
+  color: #333;
 }

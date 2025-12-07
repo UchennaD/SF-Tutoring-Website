@@ -3,6 +3,10 @@ import pool from '../config/db.js';
 export async function upcomingSessions(req, res) {
     const {student_id} = req.params;
 
+    // NOTE: Instead of fetching student ID on frontend via sessions endpoint (& exposing extra info) just to fetch this endpoint,
+    //       you could just refer to 'req.user.id' or 'req.sessions.user.id' HERE & avoid the extra /auth/session fetch on the frontend.
+    //       (see tutorDashboard.html for more info)
+    
     if (!student_id) {
         return res.status(400).json({success: false, error: "Can't load upcoming sessions, missing student_id."});
     }

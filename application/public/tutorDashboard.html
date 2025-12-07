@@ -75,6 +75,10 @@
     <script>
         async function loadUpcomingSessions() {
             try {
+
+                // Either fetch /api/auth/session HERE to get student.ID (NOT student_id - which we don't use rn)
+                // OR EVEN BETTER, just reference req.user.id (or req.session.user.id) inside the /upocoming-sessions controller
+
                 const studentID = 1;    //Temporary placeholder, will be replaced with logged-in student ID
                 const res = await fetch(`/api/dashboard/upcoming-sessions/${studentID}`);
                 const data = await res.json();

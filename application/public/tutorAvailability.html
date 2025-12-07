@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>GatorTutor™ - Manage Availability</title>
+    <link rel="stylesheet" href="main.css" />
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+</head>
+<body>
+    <!-- HEADER -->
+    <header id="mainHeader">
+        <div id="header-left">
+            <img src="resources/SFSUSeal.png" id="SFSUSeal" alt="SFSU Seal">
+            <h2 id="siteTitle">
+                <a id="homeLink" href="tutorDashboard.html">Gator Tutor</a>
+            </h2>
+        </div>
+        <div id="header-right">
+            <a href="tutorDashboard.html">Dashboard</a>
+            <a href="login.html">Logout</a>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <div class="sidebar">
+        <h2>Tutor Menu</h2>
+        <a href="tutorDashboard.html">Dashboard</a>
+        <a href="tutorAvailability.html" style="background: #eec451; font-weight: 600;">Set Availability</a>
+        <a href="#">Messages</a>
+        <a href="tutorNotes.html">Student Notes</a>
+        <a href="#">Profile Settings</a>
+    </div>
+    
+    <div class="main">
+        <h1>Manage Your Availability</h1>
+        
+        <div class="cards">
+            <div class="card">
+                <h3>Add Availability</h3>
+                <form id="availabilityForm">
+                    <div class="form-group">
+                        <label for="availabilityType">Availability Type:</label>
+                        <select id="availabilityType" onchange="toggleDateInput()">
+                            <option value="recurring">Recurring Weekly</option>
+                            <option value="specific">Specific Date</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="dayOfWeekGroup">
+                        <label for="dayOfWeek">Day of Week:</label>
+                        <select id="dayOfWeek">
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                            <option value="Sunday">Sunday</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="specificDateGroup" style="display: none;">
+                        <label for="specificDate">Specific Date:</label>
+                        <input type="date" id="specificDate" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="startTime">Start Time:</label>
+                        <input type="time" id="startTime" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="endTime">End Time:</label>
+                        <input type="time" id="endTime" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    </div>
+                    
+                    <button type="submit" class="login-btn" style="width: 100%;">Add Availability</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Current Availability</h3>
+                <div class="scroll" id="currentAvailability">
+                    <!-- Availability will be loaded here -->
+                </div>
+            </div>
+
+            <div class="card" style="grid-column: span 2;">
+                <h3>Calendar View</h3>
+                <div id="availabilityCalendar" style="height: 500px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <script>
+        let calendar;
+        let tutorId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            tutorId = sessionStorage.getItem('tutorId') || localStorage.getItem('tutorId') || 1;
+            
+            initializeCalendar();
+            loadAvailability();
+            
+            document.getElementById('availabilityForm').addEventListener('submit', handleSubmit);
+        });
+
+        function initializeCalendar() {
+            const calendarEl = document.getElementById('availabilityCalendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                slotMinTime: '07:00:00',
+                slotMaxTime: '21:00:00',
+                height: 500,
+                events: []
+            });
+            calendar.render();
+        }
+
+        function toggleDateInput() {
+            const type = document.getElementById('availabilityType').value;
+            const dayGroup = document.getElementById('dayOfWeekGroup');
+            const dateGroup = document.getElementById('specificDateGroup');
+            
+            if (type === 'recurring') {
+                dayGroup.style.display = 'block';
+                dateGroup.style.display = 'none';
+            } else {
+                dayGroup.style.display = 'none';
+                dateGroup.style.display = 'block';
+            }
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('availabilityType').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            
+            if (!startTime || !endTime) {
+                alert('Please select both start and end times');
+                return;
+            }
+            
+            const data = {
+                tutor_id: tutorId,
+                start_time: startTime,
+                end_time: endTime,
+                is_recurring: type === 'recurring'
+            };
+            
+            if (type === 'recurring') {
+                data.day_of_week = document.getElementById('dayOfWeek').value;
+            } else {
+                data.specific_date = document.getElementById('specificDate').value;
+            }
+            
+            try {
+                const response = await fetch('/api/tutor/availability', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('Availability added successfully!');
+                    document.getElementById('availabilityForm').reset();
+                    loadAvailability();
+                } else {
+                    alert('Failed to add availability');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadAvailability() {
+            try {
+                const response = await fetch(`/api/tutor/availability/${tutorId}`);
+                const availability = await response.json();
+                
+                displayAvailability(availability);
+                updateCalendarEvents(availability);
+            } catch (error) {
+                console.error('Error loading availability:', error);
+            }
+        }
+
+        function displayAvailability(availability) {
+            const container = document.getElementById('currentAvailability');
+            
+            if (availability.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No availability set</p>';
+                return;
+            }
+            
+            container.innerHTML = availability.map(slot => {
+                const timeText = `${formatTime(slot.start_time)} - ${formatTime(slot.end_time)}`;
+                const dayText = slot.is_recurring ? `${slot.day_of_week}s` : new Date(slot.specific_date).toLocaleDateString();
+                
+                return `
+                    <div class="availability-slot" style="margin-bottom: 10px;">
+                        <strong>${dayText}</strong><br>
+                        ${timeText}
+                        <button class="cancel-btn" style="float: right; padding: 5px 10px;" onclick="deleteAvailability(${slot.id})">
+                            Remove
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCalendarEvents(availability) {
+            calendar.getEvents().forEach(event => event.remove());
+            
+            availability.forEach(slot => {
+                if (slot.is_recurring) {
+                    const dayMap = {
+                        'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
+                        'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 0
+                    };
+                    
+                    for (let week = 0; week < 4; week++) {
+                        const date = new Date();
+                        const currentDay = date.getDay();
+                        const targetDay = dayMap[slot.day_of_week];
+                        let daysUntilTarget = (targetDay - currentDay + 7) % 7;
+                        
+                        date.setDate(date.getDate() + daysUntilTarget + (week * 7));
+                        
+                        calendar.addEvent({
+                            id: `${slot.id}-${week}`,
+                            title: 'Available',
+                            start: `${date.toISOString().split('T')[0]}T${slot.start_time}`,
+                            end: `${date.toISOString().split('T')[0]}T${slot.end_time}`,
+                            backgroundColor: '#4CAF50'
+                        });
+                    }
+                }
+            });
+        }
+
+        async function deleteAvailability(id) {
+            if (!confirm('Remove this availability?')) return;
+            
+            try {
+                const response = await fetch(`/api/tutor/availability/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadAvailability();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function formatTime(timeString) {
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+    </script>
+</body>
+</html>

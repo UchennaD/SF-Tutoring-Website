@@ -83,8 +83,7 @@
                 window.location.href = "dashboard.html";
 
             } catch (err) {
-                console.error("OTP verification error:", err);
-                alert("Server error verifying code.");
+                console.error("Error with login endpoint: ", err);
             }
         });
     </script>

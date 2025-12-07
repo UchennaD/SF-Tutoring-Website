@@ -2,13 +2,20 @@
 import pool from '../config/db.js';
 
 export async function bookSession(req, res) {
-    const { student_id, tutor_id, session_id } = req.body;
 
-    if (!student_id || !tutor_id || !session_id) {
+    // Get identifying session details 
+
+    const { tutor_id, session_id } = req.body;
+
+    // Ensure legit session details
+    if ( !tutor_id || !session_id) {
         return res
             .status(400)
             .json({ success: false, error: "Missing required fields." });
     }
+
+    // User must be logged in to book, so we can access student.id through req.user.id or session
+    const student_id = req.user.id; // we know req.user has just been initialized by authMiddleware (so we can use it)
 
     try {
         const [result] = await pool.query(

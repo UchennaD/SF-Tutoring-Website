@@ -1,6 +1,6 @@
 import pool from '../config/db.js';
 import bcrypt from 'bcrypt'; // for addUser
-import { resend } from '../utils/mailer.js';
+import { resend } from '../utils/mailer.js'; // OTP helper function
 
 export async function emailOTP(req, res) {
 
@@ -193,6 +193,14 @@ export async function login(req, res) {
             role: isTutor ? "tutor" : "student"
         };
 
+        // Inject req.session.user into first request, middleware will do so for all requests post-login
+        // NOTE:    req.session.user    --> persists across many requests (via sessionID), tied to DB
+        //          req.user            --> only attached to ONE request, but every request thru middleware gets a fresh req.user. 
+        // The goal of this (complicated) process is to decouple user info retrieval from session handling/tomfoolery
+        req.user = req.session.user 
+        
+
+
         // STEP 5: Persist session to MySQL session store in DB
         req.session.save(err => {
             // Respond with failure if session cannot be saved
@@ -208,7 +216,7 @@ export async function login(req, res) {
             return res.json({
                 success: true,
                 message: "Login successful",
-                user: req.session.user
+                user: req.user
             });
         });
 
@@ -217,6 +225,34 @@ export async function login(req, res) {
         return res.status(500).json({
             success: false,
             error: "Server error during login"
+        });
+    }
+}
+// NOTE: Logout only clears session, but doesn't redirect on its own
+export async function logout(req, res){
+    // free data from session to prevent access without logging in again
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to log out' });
+        }
+        res.status(200).json({ message: "Logged out successfully." });
+    });
+}
+
+// --------- User Info Retrieval via Session ---------
+export async function session(req, res) {
+    // Check if req.session.user has been instantiated via login & session creation
+    if (req.session.user){
+        // return user info, if so
+        return res.status(200).json({
+            message: "Session exists!",
+            success: true,
+            user: req.session.user // req.session.user is our single source of truth, not req.user (which we set/update for convenience)
+        })
+    } else {
+        return res.status(200).json({
+            success: false, 
+            user: null 
         });
     }
 }

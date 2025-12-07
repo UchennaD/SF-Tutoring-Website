@@ -9,7 +9,8 @@ import pool from "./config/db.js";
 // Simple API routers connecting HTTP routes to their respective controllers.
 import tutoringRoutes from './routes/tutoringRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
-import authRoutes from './routes/authRoutes.js'
+import authRoutes from './routes/authRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -38,7 +39,7 @@ const sessionStore = new SessionStoreClass({
   database: process.env.DB_NAME,
   clearExpired: true,
   checkExpirationInterval: 900000, // 15 min
-  expiration: 86400000 // 24 hours
+  expiration: 3600000 // 3600000 ms == 1 hour
 });
 
 app.use(
@@ -58,7 +59,8 @@ app.use(
 // API routes (after sessions built out)
 app.use('/api', tutoringRoutes); // tutor results + health check
 app.use('/api', bookingRoutes); // booking + book health check
-app.use('/api/auth', authRoutes); // OTP verification, user sign-up/sign-in, future session handling?
+app.use('/api/auth', authRoutes); // OTP verification, user sign-up/sign-in, session handling
+app.use('/api', dashboardRoutes); // Routes for delivering personalized dashboard info
 
 // Nginx will pass HTTP requests to .env-specified port or 3000
 const PORT = process.env.PORT || 3000;

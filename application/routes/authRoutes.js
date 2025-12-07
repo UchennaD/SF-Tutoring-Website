@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { emailOTP, verifyOTP, addUser, login } from '../controllers/authControllers.js';
+import { emailOTP, verifyOTP, addUser, login, logout, session } from '../controllers/authControllers.js';
 
 // OTP email authentication endpoint
 router.get('/email', emailOTP);
@@ -9,9 +9,11 @@ router.post('/verify', verifyOTP);
 // Add User (only after OTP success, so no erroneous DB entries)
 router.post('/create', addUser);
 // Login: Verify email + password, implement session
-// TO-DO: Associated authControllers.js login function
-router.post("/login", login);
-
+router.post('/login', login);
+// Logout: Clear session & remove session from DB. REDIRECT NOT INCLUDED
+router.post('/logout', logout);
+// Retrieve user info tied to session ID
+router.get('/session', session);
 
 // health check for auth section
 router.get('/health', (req, res) => {

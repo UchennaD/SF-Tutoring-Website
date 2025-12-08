@@ -95,45 +95,31 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
     <script>
         let calendar;
-        let tutorId = null;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            tutorId = sessionStorage.getItem('tutorId') || localStorage.getItem('tutorId') || 1;
-            
+        document.addEventListener('DOMContentLoaded', function() {            
             initializeCalendar();
-            loadAvailability();
-            
+            loadAvailability(); 
             document.getElementById('availabilityForm').addEventListener('submit', handleSubmit);
         });
 
-        function initializeCalendar() {
-            const calendarEl = document.getElementById('availabilityCalendar');
-            calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'timeGridWeek',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                },
-                slotMinTime: '07:00:00',
-                slotMaxTime: '21:00:00',
-                height: 500,
-                events: []
-            });
-            calendar.render();
-        }
-
-        function toggleDateInput() {
-            const type = document.getElementById('availabilityType').value;
-            const dayGroup = document.getElementById('dayOfWeekGroup');
-            const dateGroup = document.getElementById('specificDateGroup');
-            
-            if (type === 'recurring') {
-                dayGroup.style.display = 'block';
-                dateGroup.style.display = 'none';
-            } else {
-                dayGroup.style.display = 'none';
-                dateGroup.style.display = 'block';
+        async function loadAvailability() {
+            try {
+                // No ID needed - server knows from session
+                const response = await fetch('/api/tutor/availability');
+                
+                if (response.status === 401) {
+                    alert('Please log in as a tutor');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                if (data.success) {
+                    displayAvailability(data.availability);
+                    updateCalendarEvents(data.availability);
+                }
+            } catch (error) {
+                console.error('Error loading availability:', error);
             }
         }
 
@@ -141,18 +127,15 @@
             e.preventDefault();
             
             const type = document.getElementById('availabilityType').value;
-            const startTime = document.getElementById('startTime').value;
-            const endTime = document.getElementById('endTime').value;
-            
-            if (!startTime || !endTime) {
-                alert('Please select both start and end times');
-                return;
-            }
+            // Note: Ensure input with ID 'timeSlot' exists in your HTML form
+            const timeSlot = document.getElementById('timeSlot').value;
             
             const data = {
-                tutor_id: tutorId,
-                start_time: startTime,
-                end_time: endTime,
+                time_slot: timeSlot + ':00',
+                // Note: Ensure input with IDs 'subjects', 'mode', 'description' exist
+                subjects: document.getElementById('subjects').value || '["General"]',
+                mode: document.getElementById('mode').value,
+                description: document.getElementById('description').value || 'Available for tutoring',
                 is_recurring: type === 'recurring'
             };
             
@@ -171,27 +154,65 @@
                     body: JSON.stringify(data)
                 });
                 
-                if (response.ok) {
-                    alert('Availability added successfully!');
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(result.message);
                     document.getElementById('availabilityForm').reset();
                     loadAvailability();
                 } else {
-                    alert('Failed to add availability');
+                    alert(result.error || 'Failed to add availability');
                 }
             } catch (error) {
                 console.error('Error:', error);
             }
         }
 
-        async function loadAvailability() {
+        async function deleteAvailability(sessionId) {
             try {
-                const response = await fetch(`/api/tutor/availability/${tutorId}`);
-                const availability = await response.json();
+                const response = await fetch(`/api/tutor/availability/${sessionId}`, {
+                    method: 'DELETE'
+                });
                 
-                displayAvailability(availability);
-                updateCalendarEvents(availability);
+                const result = await response.json();
+                if (result.success) {
+                    loadAvailability();
+                } else {
+                    alert(result.error || 'Failed to remove');
+                }
             } catch (error) {
-                console.error('Error loading availability:', error);
+                console.error('Error:', error);
+            }
+        }
+
+        function initializeCalendar() {
+            const calendarEl = document.getElementById('availabilityCalendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'timeGridWeek',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                slotMinTime: '07:00:00',
+                slotMaxTime: '21:00:00',
+                height: 500,
+                events: []
+            });
+            calendar.render();
+        }       
+
+        function toggleDateInput() {
+            const type = document.getElementById('availabilityType').value;
+            const dayGroup = document.getElementById('dayOfWeekGroup');
+            const dateGroup = document.getElementById('specificDateGroup');
+            
+            if (type === 'recurring') {
+                dayGroup.style.display = 'block';
+                dateGroup.style.display = 'none';
+            } else {
+                dayGroup.style.display = 'none';
+                dateGroup.style.display = 'block';
             }
         }
 
@@ -249,21 +270,6 @@
             });
         }
 
-        async function deleteAvailability(id) {
-            if (!confirm('Remove this availability?')) return;
-            
-            try {
-                const response = await fetch(`/api/tutor/availability/${id}`, {
-                    method: 'DELETE'
-                });
-                
-                if (response.ok) {
-                    loadAvailability();
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
 
         function formatTime(timeString) {
             const [hours, minutes] = timeString.split(':');

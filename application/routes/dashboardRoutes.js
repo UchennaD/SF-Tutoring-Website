@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { getStudentProfile, upcomingSessions, updateStudentProfile } from '../controllers/dashboardController';
+import { getStudentProfile, upcomingSessions, updateStudentProfile } from '../controllers/dashboardController.js';
 
 router.get('/upcoming-sessions/:student_id', upcomingSessions);
 

@@ -34,6 +34,7 @@ export async function upcomingSessions(req, res) {
 }
 
 // GET /students/:student_id/profile
+//Links to the students table in db14
 export async function getStudentProfile(req, res) {
     const { student_id } = req.params;
 
@@ -47,12 +48,12 @@ export async function getStudentProfile(req, res) {
     try {
         const [rows] = await pool.query(
             `SELECT student_id,
-                    first_name,
-                    last_name,
+                    full_name,
                     email,
-                    phone,
                     grade_level,
-                    bio
+                    major,
+                    preferred_subjects,
+                    gpa
              FROM students
              WHERE student_id = ?`,
             [student_id]
@@ -85,12 +86,13 @@ export async function updateStudentProfile(req, res) {
 
     // Fields students are allowed to update
     const updatableFields = [
-        'first_name',
-        'last_name',
+        'full_name',
         'email',
-        'phone',
         'grade_level',
-        'bio'
+        'major',
+        'preferred_subjects',
+        'learning_goals',
+        'gpa'
     ];
 
     const updates = [];
@@ -129,12 +131,13 @@ export async function updateStudentProfile(req, res) {
         // Fetch updated profile to return
         const [rows] = await pool.query(
             `SELECT student_id,
-                    first_name,
-                    last_name,
+                    full_name,
                     email,
-                    phone,
                     grade_level,
-                    bio
+                    major,
+                    preffered_subjects,
+                    learning_goals,
+                    gpa
              FROM students
              WHERE student_id = ?`,
             [student_id]

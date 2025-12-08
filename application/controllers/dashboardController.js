@@ -22,7 +22,7 @@ export async function upcomingSessions(req, res) {
             JOIN tutors ON bookings.tutor_id = tutors.tutor_id
             WHERE bookings.student_id = ?
                 AND bookings.status = 'confirmed'
-            ORDER BY tutoring_sessions.session_date ASC`
+            ORDER BY tutoring_sessions.session_date ASC`,
             [student_id]
         );
 

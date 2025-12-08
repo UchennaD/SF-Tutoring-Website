@@ -150,18 +150,3 @@ export async function updateStudentProfile(req, res) {
         res.status(500).json({ success: false, error: err.message });
     }
 }
-
-import express from 'express';
-import {
-  upcomingSessions,
-  getStudentProfile,
-  updateStudentProfile
-} from '../controllers/studentController.js';
-
-const router = express.Router();
-
-router.get('/students/:student_id/upcoming-sessions', upcomingSessions);
-router.get('/students/:student_id/profile', getStudentProfile);
-router.put('/students/:student_id/profile', updateStudentProfile);
-
-export default router;

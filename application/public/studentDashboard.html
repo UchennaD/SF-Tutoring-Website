@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8" />
-    <title>GatorTutor™ - Login</title>
+    <title>GatorTutor™ - Dashboard</title>
     <link rel="stylesheet" href="main.css" />
 </head>
 <body>
@@ -26,7 +26,7 @@
         <a href="tutorSignUp.html">Become a Tutor</a>
     </div>
     <div class="main">
-        <h1>Welcome Back, Bob!</h1>
+        <h1>Welcome Back!</h1>
 
         <div class="cards">
             <div class="card">
@@ -43,15 +43,9 @@
 
             <div class="card">
                 <h3>Profile</h3>
-                <h4>Alex Johnson</h4>
-                <p>Computer Science • 2nd Year • SFSU</p>
-
-                
-                <p class="tutor-bio">
-                    CS student focusing on improving algorithms, discrete math, and systems
-                    programming. Looking for tutoring in upper-division CS concepts and 
-                    guidance in preparing for internships.
-                </p>
+                <h4 id="student-name"></h4>
+                <p id="student-details"></p>
+                <p class="tutor-bio" id="student-bio"></p>
             </div>
         </div>
     </div>
@@ -64,23 +58,26 @@
                 const data = await res.json();
 
                 const container = document.getElementById('upcoming-sessions');
-                container.innterHTML = '';
+                container.innerHTML = '';
 
                 if (data.success && data.upcoming.length > 0) {
                     data.upcoming.forEach(session => {
                         const div = document.createElement('div');
                         div.classList.add('appt');
-                        div.innerHTML = `
-                            <h2>${new Date(session.session_date).toLocaleDateString('en-US'), {
+                        
+                        const dateStr = new Date(session.session_date).toLocaleDateString('en-US', {
                                 weekday: 'long',
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric'
-                            }}</h2>
-                            <p><strong>${session.subjects} tutor session</strong></p>
-                            <p>${session.tutor_name}</p>
-                            <button class="msg-btn">Message ${session.tutor_name.split(' '[0])}</button>
-                            <button class="cancel-btn">Cancel Appointment</button>
+                            });
+
+                            div.innerHTML = `
+                                <h4>${dateStr}</h4>
+                                <p><strong>${session.subjects} tutor session</strong></p>
+                                <p>${session.tutor_name}</p>
+                                <button class="msg-btn">Message ${session.tutor_name.split(' ')[0]}</button>
+                                <button class="cancel-btn">Cancel Appointment</button>
                             `;
                         container.appendChild(div);
                     });
@@ -92,9 +89,31 @@
             }
         }
 
+        async function loadStudentProfile() {
+            try {
+                const studentID = 1;
+                const res = await fetch(`/api/students/${studentID}/profile`);
+                const data = await res.json();
+
+                if (data.success) {
+                    const profile = data.profile;
+
+                    //Populate profile card
+                    document.getElementById('student-name').textContent = profile.full_name;
+                    document.getElementById('student-details').textContent =
+                        `${profile.major || 'Undeclared'} • ${profile.grade_level || 'N/A'} • GPA: ${profile.gpa || 'N/A'}`;
+                    document.getElementById('student-bio').textContent =
+                        profile.learning_goals || 'No learning goals set yet.';
+                } else {
+                    console.error('Error loading profile:', data.error);
+                }
+            } catch (err) {
+                console.error('Error fetching student profile:', err);
+            }
+        }
+
         loadUpcomingSessions();
+        loadStudentProfile();
     </script>
-
-
 </body>
 </html>

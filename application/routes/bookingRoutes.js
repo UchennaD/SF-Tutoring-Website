@@ -6,7 +6,7 @@ import { requireAuth } from '../middleware/authMiddleware.js';
 router.post('/book', requireAuth, bookSession);
 
 // health check
-router.post('/book/health', (req, res) => {
+router.post('/book/health', (_req, res) => {
   res.json({ msg: 'Book API is live! 🔥' });
 });
 

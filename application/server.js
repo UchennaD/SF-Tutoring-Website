@@ -12,6 +12,7 @@ import bookingRoutes from './routes/bookingRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
 import availabilityRoutes from './routes/availabilityRoutes.js';
+import messagingRoutes from './routes/messagingRoutes.js';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -63,6 +64,7 @@ app.use('/api', bookingRoutes); // booking + book health check
 app.use('/api/auth', authRoutes); // OTP verification, user sign-up/sign-in, session handling
 app.use('/api', dashboardRoutes); // Routes for delivering personalized dashboard info
 app.use('/api/tutor', availabilityRoutes); // Routes for tutor availability management
+app.use('/api', messagingRoutes); // Routes for creating & retrieving convos + messages
 
 // Nginx will pass HTTP requests to .env-specified port or 3000
 const PORT = process.env.PORT || 3000;

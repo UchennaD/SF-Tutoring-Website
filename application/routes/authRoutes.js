@@ -16,7 +16,7 @@ router.post('/logout', logout);
 router.get('/session', session);
 
 // health check for auth section
-router.get('/health', (req, res) => {
+router.get('/health', (_req, res) => {
   res.json({ msg: 'Hello from Auth API! 🔥' });
 });
 

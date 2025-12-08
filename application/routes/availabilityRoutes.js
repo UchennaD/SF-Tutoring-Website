@@ -14,7 +14,7 @@ router.delete('/availability/:sessionId', removeTutorAvailability);
 router.get('/dashboard', getTutorDashboard);
 
 // Health check
-router.get('/ping', (req, res) => {
+router.get('/health', (_req, res) => {
     res.json({ msg: 'Tutor API is live! 🎓' });
 });
 

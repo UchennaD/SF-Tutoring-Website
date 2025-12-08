@@ -5,8 +5,8 @@ import { searchTutors } from '../controllers/tutoringController.js';
 router.get('/search', searchTutors);
 
 // health check
-router.get('/ping', (req, res) => {
-  res.json({ msg: 'Backend API is live! 🔥' });
+router.get('/search/health', (_req, res) => {
+  res.json({ msg: 'Search API is live! 🔥' });
 });
 
 export default router;

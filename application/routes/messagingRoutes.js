@@ -4,10 +4,10 @@ import { createConvo, sendMessage, getConvos, getMessages } from '../controllers
 
 // Conversation creation & retrieval
 router.post('/convos', createConvo);
-router.get('/convos/:convo_id', getConvos);
+router.get('/convos', getConvos);
 
 // Message creation & retrieval
-router.post('/messages', sendMessage);
+router.post('/convos/:convo_id/messages', sendMessage);
 router.get('/convos/:convo_id/messages', getMessages);
 
 // Chat health check

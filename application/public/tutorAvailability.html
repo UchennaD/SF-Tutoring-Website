@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="main.css" />
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
 </head>
-<body>
+<body class="tutor-theme">
     <!-- HEADER -->
     <header id="mainHeader">
         <div id="header-left">
@@ -25,7 +25,7 @@
     <div class="sidebar">
         <h2>Tutor Menu</h2>
         <a href="tutorDashboard.html">Dashboard</a>
-        <a href="tutorAvailability.html" style="background: #eec451; font-weight: 600;">Set Availability</a>
+        <a href="tutorAvailability.html" style="background: #cb7be3de; font-weight: 600;">Set Availability</a>
         <a href="#">Messages</a>
         <a href="tutorNotes.html">Student Notes</a>
         <a href="#">Profile Settings</a>
@@ -47,7 +47,7 @@
                     </div>
                     
                     <div class="form-group" id="dayOfWeekGroup">
-                        <label for="dayOfWeek">Day of Week:</label>
+                        <label for="dayOfWeek">Day of the Week:</label>
                         <select id="dayOfWeek">
                             <option value="Monday">Monday</option>
                             <option value="Tuesday">Tuesday</option>
@@ -74,7 +74,7 @@
                         <input type="time" id="endTime" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
                     </div>
                     
-                    <button type="submit" class="login-btn" style="width: 100%;">Add Availability</button>
+                    <button type="submit" class="filterBtn" style="width: 100%;">Add Availability</button>
                 </form>
             </div>
 
@@ -87,6 +87,8 @@
 
             <div class="card" style="grid-column: span 2;">
                 <h3>Calendar View</h3>
+                <div style="margin-bottom: 10px; color: #666;">
+                    (Green blocks indicate your available times)
                 <div id="availabilityCalendar" style="height: 500px;"></div>
             </div>
         </div>
@@ -127,15 +129,12 @@
             e.preventDefault();
             
             const type = document.getElementById('availabilityType').value;
-            // Note: Ensure input with ID 'timeSlot' exists in your HTML form
-            const timeSlot = document.getElementById('timeSlot').value;
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
             
             const data = {
-                time_slot: timeSlot + ':00',
-                // Note: Ensure input with IDs 'subjects', 'mode', 'description' exist
-                subjects: document.getElementById('subjects').value || '["General"]',
-                mode: document.getElementById('mode').value,
-                description: document.getElementById('description').value || 'Available for tutoring',
+                start_time: startTime + ':00',
+                end_time: endTime + ':00',
                 is_recurring: type === 'recurring'
             };
             

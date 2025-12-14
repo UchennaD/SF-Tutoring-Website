@@ -15,7 +15,8 @@
             </h2>
         </div>
         <div id="header-right">
-            <a href="studentDashboard.html" id="homeLink">Back to Student Dashboard</a>
+            <!-- TO-DO: LOG USER OUT --> 
+            <a href="#" id="logOut" onclick="logout(); return false;">Logout</a>
         </div>
     </header>
 
@@ -27,7 +28,7 @@
         <a href="tutorAvailability.html">Set Your Availability</a>
     </div>
     <div class="main">
-        <h1>Welcome Back, Bob!</h1>
+        <h1 id="welcomeName">Welcome Back!</h1>
 
         <div class="tutor-stats"> 
             <div class="stat-box">
@@ -54,55 +55,182 @@
                     
             <div class="card">
                 <h3>Inbox</h3>
-                <p>No new messages</p>
+                <div class="scroll" id="inbox-list">
+                    <p>Loading...</p>
+                    <!-- dynamic content -->
+                </div>
             </div>
 
             <div class="card">
                 <h3>Profile</h3>
-                <h4>Alex Johnson</h4>
-                <p>Computer Science • 2nd Year • SFSU</p>
+                <h4 id="profileName">Loading...</h4>
+                <p id="profileMeta">&nbsp;</p>
 
-                
-                <p class="tutor-bio">
-                    CS student focusing on improving algorithms, discrete math, and systems
-                    programming. Looking for tutoring in upper-division CS concepts and 
-                    guidance in preparing for internships.
-                </p>
+                <p class="tutor-bio" id="profileBio">&nbsp;</p>
+
+                <p class="small" id="profileExtra">&nbsp;</p>
             </div>
         </div>
     </div>
 
     <script>
+        // Auth guard (failsafe in case middleware not implemented)
+        async function guardTutor() {
+            try {
+                const res = await fetch('/api/auth/session', { credentials: 'include' });
+                if (!res.ok) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                const data = await res.json();
+                const role = data?.user?.role;
+
+                // Simple redirect if session expired or invalid/broken roles (this will prevent infinite redirects & crash)
+                if ((!role) || (role !== 'tutor' && role !== 'student')) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+
+                // Switch to appropriate dashboard if role permissions not enforced previously
+                if (role !== 'tutor') {
+                    window.location.href = 'studentDashboard.html'; 
+                    return false;
+                }
+                // If no issues, return true to allow all dashboard personalization scripts to run
+                return true;
+            } catch (err) {
+                console.error('Session check failed:', err);
+                window.location.href = 'login.html';
+                return false;
+            }
+        }
+
+
+        async function logout() {
+            try {
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.log('Logout failed:', errorData.error || `HTTP ${response.status}`);
+                    return;
+                }
+
+                // return to index WITHOUT enabling back button
+                window.location.replace('index.html');
+            } catch (err) {
+                console.error('Logout error:', err);
+            }
+        }
+
+        function titleCase(str) {
+            if (!str) return '';
+            return String(str)
+                .split(/\s|_/)
+                .filter(Boolean)
+                .map(w => w[0].toUpperCase() + w.slice(1))
+                .join(' ');
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/profile', { credentials: 'include' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const data = await res.json();
+                if (!data.success || !data.profile) {
+                    throw new Error(data.error || 'Profile not available');
+                }
+
+                const p = data.profile;
+
+                const nameEl = document.getElementById('profileName');
+                const metaEl = document.getElementById('profileMeta');
+                const bioEl = document.getElementById('profileBio');
+                const extraEl = document.getElementById('profileExtra');
+                const welcomeEl = document.getElementById('welcomeName');
+
+                const fullName = p.full_name || 'Unknown User';
+                if (welcomeEl) welcomeEl.textContent = `Welcome Back, ${fullName.split(' ')[0]}!`;
+
+                if (nameEl) nameEl.textContent = fullName;
+
+                const major = p.major || 'Major not set';
+                const grade = p.grade_level ? titleCase(p.grade_level) : 'Grade not set';
+                const college = p.sfsu_college || 'SFSU';
+                if (metaEl) metaEl.textContent = `${major} • ${grade} • ${college}`;
+
+                const goals = p.learning_goals || 'No learning goals set yet.';
+                bioEl.textContent = goals;
+
+                const sid = p.student_id ? `SFSU ID: ${p.student_id}` : 'SFSU ID: Not set';
+                const gpa = (p.gpa !== null && p.gpa !== undefined && p.gpa !== '') ? `GPA: ${p.gpa}` : 'GPA: Not set';
+                extraEl.textContent = `${sid} • ${gpa}`;
+
+            } catch (err) {
+                console.error('Error loading profile:', err);
+                const nameEl = document.getElementById('profileName');
+                const metaEl = document.getElementById('profileMeta');
+                const bioEl = document.getElementById('profileBio');
+                const extraEl = document.getElementById('profileExtra');
+                if (nameEl) nameEl.textContent = 'Profile unavailable';
+                if (metaEl) metaEl.textContent = '';
+                if (bioEl) bioEl.textContent = '';
+                if (extraEl) extraEl.textContent = '';
+            }
+        }
+
         async function loadUpcomingSessions() {
             try {
 
-                // Either fetch /api/auth/session HERE to get student.ID (NOT student_id - which we don't use rn)
-                // OR EVEN BETTER, just reference req.user.id (or req.session.user.id) inside the /upocoming-sessions controller
-
-                const studentID = 1;    //Temporary placeholder, will be replaced with logged-in student ID
-                const res = await fetch(`/api/dashboard/upcoming-sessions/${studentID}`);
+                // Ask for upcoming sessions from dashboardController.js –– fetch defaults to GET request
+                const res = await fetch(`/api/upcoming-sessions`, { credentials: 'include' });
                 const data = await res.json();
 
                 const container = document.getElementById('upcoming-sessions');
-                container.innterHTML = '';
+                container.innerHTML = '';
 
                 if (data.success && data.upcoming.length > 0) {
-                    data.upcoming.forEach(session => {
+                    data.upcoming.forEach(tutor_session => {
                         const div = document.createElement('div');
                         div.classList.add('appt');
+                        // Create SAFE date for HTML template
+                        const nullSafeDate = tutor_session.session_date
+                            ? new Date(tutor_session.session_date + 'T00:00:00')
+                            : null;
+                        const htmlDate = nullSafeDate
+                            ? nullSafeDate.toLocaleDateString('en-US', {
+                                  weekday: 'long',
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                              })
+                            : 'Date not set';
+                        // Create SAFE subjects for HTML template by converting from array to string, if not already JSON string (using an IIFE)
+                        const subjects = Array.isArray(tutor_session.subjects) ? tutor_session.subjects.join(', ')
+                        : (() => { try { return JSON.parse(tutor_session.subjects).join(', '); } catch { return String(tutor_session.subjects); } })();
+
+                        // --------------- TUTOR SESSIONS TEMPLATE ---------------
                         div.innerHTML = `
-                            <h2>${new Date(session.session_date).toLocaleDateString('en-US'), {
-                                weekday: 'long',
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            }}</h2>
-                            <p><strong>${session.subjects} tutor session</strong></p>
-                            <p>${session.tutor_name}</p>
-                            <button class="msg-btn">Message ${session.tutor_name.split(' '[0])}</button>
+                            <h2>${htmlDate}</h2>
+                            <p><strong>${subjects} tutor session</strong></p>
+                            <p>${tutor_session.student_name}</p>
+                            <button class="msg-btn">Message ${tutor_session.student_name.split(' ')[0]}</button>
                             <button class="cancel-btn">Cancel Appointment</button>
                             `;
                         container.appendChild(div);
+
+                        // Register click handler for every session's message button, once it's appended to DOM
+                        const msgBtn = div.querySelector(".msg-btn");
+                        if (msgBtn) {
+                            msgBtn.addEventListener("click", () => {
+                                const receiverId = tutor_session.student_id; // tutor -> message student
+                                window.location.href = `messaging.html?receiverId=${encodeURIComponent(receiverId)}`;
+                            });
+                        }
                     });
                 } else {
                     container.innerHTML = '<p>No upcoming sessions</p>';
@@ -112,7 +240,79 @@
             }
         }
 
-        loadUpcomingSessions();
+        function formatTime(dt) {
+            if (!dt) return '';
+            const d = new Date(dt);
+            return d.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+  
+        async function loadInbox() {
+            const container = document.getElementById('inbox-list');
+            if (!container) return;
+
+            // blank slate to fill with convos
+            container.innerHTML = '';
+            
+            try {
+                // get a list of convos matching req.session.user.id
+                const res = await fetch('/api/convos', { credentials: 'include' });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json(); // parse response stream back into json format
+
+                if (!data.success || !Array.isArray(data.convos) || data.convos.length === 0) {
+                    container.innerHTML = '<p>No messages yet</p>';
+                    return;
+                }
+
+                // Iterate through list of [tutor|student] convos 
+                data.convos.slice(0, 5).forEach(convo => {
+                    // assume user of tutoringDashboard is always a tutor
+                    const receiver_name = convo.student_name || "Student";
+                    const lastText = convo.last_message_text || 'No message yet';
+                    const when = formatTime(convo.last_message_at);
+                    const senderPrefix = convo.last_sender_name ? `${convo.last_sender_name}: ` : '';
+
+                    // Create HTML scaffolding for THIS convo
+                    const item = document.createElement('div');
+
+                    // reuse existing styling from appointments
+                    // NOTE: change if we want specific styling
+                    item.className = 'appt'; 
+                    item.style.cursor = 'pointer';
+
+                    item.innerHTML = `
+                        <p><strong>${receiver_name}</strong>
+                        ${when ? `<span style="float:right">${when}</span>` : ''}
+                        </p>
+                        <p>${senderPrefix} "${lastText}"</p>
+                    `;
+
+                    item.addEventListener('click', () => {
+                        window.location.href = `messaging.html?convo_id=${convo.convo_id}`;
+                    });
+
+                    // Append convo to Inbox div
+                    container.appendChild(item);
+                });
+
+            } catch (err) {
+                console.error('Error loading inbox:', err);
+                container.innerHTML = '<p>Inbox unavailable</p>';
+            }
+        }
+
+        // Instead of using Immediately Invoked Function Expression for guardTutor()... 
+        // ...we can chain the rest of the personalization scripts to its success
+        guardTutor().then(ok => {
+            if (!ok) return;
+            // Run all the personalization scripts for dynamic HTML page content 
+            // (which will fetch user database info via dashboard + messaging controllers)
+            loadProfile();
+            loadUpcomingSessions();
+            loadInbox();
+        });
+        
     </script>
 
 

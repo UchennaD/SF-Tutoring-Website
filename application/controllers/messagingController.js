@@ -57,8 +57,10 @@ export async function createConvo(req, res) {
 }
 
 export async function getConvos(req, res) {
-    // Make sure user is legit 
-    const user_id = req.session.user.id;
+    // Get session user, store in variable so it can be referenced in response json
+    const user = req.session?.user;
+    const user_id = user?.id;
+    
     if (!user_id) {
         return res.status(401).json({
             success: false,
@@ -81,7 +83,13 @@ export async function getConvos(req, res) {
             [user_id, user_id]
         );
 
-        return res.json({ success: true, count: rows.length, convos: rows });
+        return res.json({ 
+            success: true, 
+            count: rows.length, 
+            convos: rows, 
+            user_role: user.role,        // always present
+            user_name: user.fullName     // optional but there if needed
+        });
 
     } catch (err) {
         console.error("Error fetching conversations:", err);

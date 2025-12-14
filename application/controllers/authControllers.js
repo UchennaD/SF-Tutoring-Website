@@ -250,9 +250,10 @@ export async function session(req, res) {
             user: req.session.user // req.session.user is our single source of truth, not req.user (which we set/update for convenience)
         })
     } else {
-        return res.status(200).json({
+        return res.status(400).json({
             success: false, 
-            user: null 
+            user: null,
+            error: "Session not found. Log in to access user session info."
         });
     }
 }

@@ -53,8 +53,8 @@
     <script>
         async function loadUpcomingSessions() {
             try {
-                const studentID = 1;    //Temporary placeholder, will be replaced with logged-in student ID
-                const res = await fetch(`/api/dashboard/upcoming-sessions/${studentID}`);
+                // Get user id from req.session.user.id internally
+                const res = await fetch(`/api/upcoming-sessions`);
                 const data = await res.json();
 
                 const container = document.getElementById('upcoming-sessions');
@@ -91,8 +91,8 @@
 
         async function loadStudentProfile() {
             try {
-                const studentID = 1;
-                const res = await fetch(`/api/students/${studentID}/profile`);
+                // get current user's id from req.session internally
+                const res = await fetch(`/api/profile`); 
                 const data = await res.json();
 
                 if (data.success) {

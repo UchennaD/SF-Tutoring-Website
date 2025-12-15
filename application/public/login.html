@@ -79,11 +79,22 @@
                     alert("Failed to verify credentials: " + loginData.error);
                     return;
                 }
-                // If no failure, redirect to dashboard
-                window.location.href = "dashboard.html";
+                // If no failure, redirect to appropriate dashboard
+                // Which Dashboard? --> check user.role property we attached to /auth/login response
+                const role = loginData.user?.role;
+
+                if (role === 'tutor') {
+                    window.location.href = 'tutorDashboard.html';
+                } else if (role === 'student') {
+                    window.location.href = 'studentDashboard.html';
+                } else {
+                    alert("Session error: unknown role.");
+                    console.error('Unknown role:', role);
+                    window.location.href = 'login.html';
+                }
 
             } catch (err) {
-                console.error("Error with login endpoint: ", err);
+                console.error("Error accessing /auth/login endpoint: ", err);
             }
         });
     </script>

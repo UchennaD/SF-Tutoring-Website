@@ -5,7 +5,7 @@ import {
     addTutorAvailability, 
     removeTutorAvailability,
     getTutorDashboard 
-} from '../controllers/tutorController.js';
+} from '../controllers/availabilityController.js';
 
 // All routes use session for tutor ID (Jamie's approach)
 router.get('/availability', getTutorAvailability);

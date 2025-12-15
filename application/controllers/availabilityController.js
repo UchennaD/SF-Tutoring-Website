@@ -219,8 +219,14 @@ export async function removeTutorAvailability(req, res) {
     }
 }
 
+///  NOTE: THIS FUNCTION WILL ALWAYS ERROR
+//  it references nonexistent properties of session object 
+//  It also seems redundant since already have a dashboard controller  - Jamie
+
 // GET /api/tutor/dashboard
 export async function getTutorDashboard(req, res) {
+
+    // NOT VALID PROPERTIES. See login() in authController.js for session initialization
     const tutorId = req.session.tutorId || req.session.userId;
     
     if (!tutorId) {

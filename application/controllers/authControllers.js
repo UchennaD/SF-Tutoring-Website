@@ -1,5 +1,5 @@
 import pool from '../config/db.js';
-import bcrypt from 'bcrypt'; // for addUser
+import bcrypt from 'bcrypt'; // for hashing password in addStudent()
 import { resend } from '../utils/mailer.js'; // OTP helper function
 
 export async function emailOTP(req, res) {
@@ -17,11 +17,19 @@ export async function emailOTP(req, res) {
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
 
         // Insert  EMAIL | OTP | EXPIRATION combo into DB for later verification
-        await pool.query(
+        const [result] = await pool.query(
             `INSERT INTO one_time_passcodes (email, passcode, expires_at)
             VALUES (?, ?, ?)`,
             [email, otp, expiresAt]
         );
+
+        // Ensure OTP stored for later verification
+        if (result.affectedRows === 0){
+            return res.status(404).json({
+                success: false,
+                error: 'OTP + user email combo not saved.'
+            });
+        }
 
         // Send email using Resend
         const info = await resend.emails.send({
@@ -81,8 +89,8 @@ export async function verifyOTP(req, res) {
     }
 }
 
-
-export async function addUser(req, res){
+// Take authenticated user info & insert into 'students' table 
+export async function addStudent(req, res){
     try {
         // Extract sessionStorage student info from HTTP request
         const { fullName, email, password } = req.body;
@@ -111,12 +119,12 @@ export async function addUser(req, res){
         // Respond with success!!!
         return res.status(200).json({
             success: true,
-            message: "User created!",
+            message: "Student account created!",
             user_id: result.insertId
         });
 
     } catch (err) {
-        console.error("addUser error from authController.js: ", err);
+        console.error("addStudent error from authController.js: ", err);
 
         // Handle duplicate email
         if (err.code === 'ER_DUP_ENTRY') {
@@ -129,6 +137,85 @@ export async function addUser(req, res){
         return res.status(500).json({
             success: false,
             error: "Miscellaneous server error creating user"
+        });
+    }
+}
+
+export async function addTutor(req, res) {
+    const { experience, subject, education_level} = req.body;
+
+    if (experience == null || subject == null || education_level == null ||
+          String(subject).trim() === "" || 
+          String(education_level).trim() === "") {
+        return res.status(422).json({ 
+            success: false, 
+            error: "Unprocessable Entity: Missing experience, subject, or education level." 
+        });
+    }
+
+    const years = parseInt(experience, 10); // standardize as a base-10 int
+    if (Number.isNaN(years) || years < 0) { // check for wacko numbers, insane psycho clown years... 
+        return res.status(422).json({ success: false, error: "Experience must be a non-negative integer, you monster." });
+    }
+    
+    // ensure user is ALREADY logged in
+    const student_id = req.session.user?.id;
+    if (!student_id) {
+        return res.status(401).json({
+            success: false,
+            error: "Student account required for tutor registration. Please log in."
+        });
+    }
+
+    try {
+        const [result] = await pool.query(            
+            `INSERT INTO tutors (tutor_id, experience_years, subjects_offered, education_level, sfsu_verified, department_approved)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+            [student_id, years, subject, education_level, 1, 1]
+        );
+
+        // Ensure tutor was inserted
+        if (result.affectedRows === 0){
+            return res.status(500).json({
+                success: false,
+                error: "Tutors table unchanged, no entry inserted."
+            });
+        }
+
+        // after legit tutor creation, UPDATE ROLE of session.user. (safe to set tutor unconditionally 
+        // bc even if they're a tutor, they'll be found out when they insert a duplicate tutor entry) 
+        req.session.user.role = "tutor";
+
+        // persist forced session role update to MySQL session store
+        return req.session.save((saveErr) => {
+            if (saveErr) {
+                console.error("Session save failed:", saveErr);
+                return res.status(500).json({ success: false, error: "Session save failed" });
+            }
+
+            return res.json({
+                success: true,
+                message: "Tutor account successfully created!",
+                user: req.session.user // frontend will check role before redirect to tutorDashboard.html
+            });
+        });
+        
+        
+        
+    } catch (err) {
+           console.error("addTutor() error from authController.js: ", err);
+
+        // Handle duplicate email
+        if (err.code === 'ER_DUP_ENTRY') {
+            return res.status(409).json({
+                success: false,
+                error: "Cannot create duplicates; tutor_id must be unique"
+            });
+        }
+        // catch all for failure 
+        return res.status(500).json({
+            success: false,
+            error: "Miscellaneous server/database error creating tutor"
         });
     }
 }

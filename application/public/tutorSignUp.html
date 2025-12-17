@@ -23,8 +23,8 @@
     <!-- MAIN CONTENT -->
     <div class="tutor-signup-container">
         <div class="tutor-signup-box">
-            <h1>Become a Gator Tutor</h1>
-            <p class="tutor-signup-subtitle">Share your expertise and help students succeed</p>
+            <h1>Become a Gator Tutor!</h1>
+            <p class="tutor-signup-subtitle">Share your expertise and help your peers succeed</p>
 
             <form id="tutorSignUpForm" class="tutor-form">
                 <!-- Experience Field -->
@@ -34,7 +34,7 @@
                         type="number" 
                         id="experience" 
                         name="experience" 
-                        placeholder="e.g., 3"
+                        placeholder="e.g. 3"
                         min="0"
                         max="60"
                         required
@@ -44,23 +44,35 @@
 
                 <!-- Subject Specialty Field -->
                 <div class="form-group">
-                    <label for="subject">Subject Specialty</label>
+                    <label for="subject">Tutoring Subject(s)</label>
                     <input 
                         type="text" 
                         id="subject" 
                         name="subject" 
-                        placeholder="e.g., Mathematics, Chemistry, Computer Science"
+                        placeholder="e.g. Mathematics, Chemistry, Computer Science"
                         required
                     >
                     <small>What subject(s) do you specialize in?</small>
                 </div>
 
+                 <div class="form-group">
+                    <label for="education-level">Education Level</label>
+                    <input 
+                        type="text" 
+                        id="education-level" 
+                        name="education_level" 
+                        placeholder="e.g. Senior, Graduate, Doctoral"
+                        required
+                    >
+                    <small>What level of higher education are you on?</small>
+                </div>
+
                 <!-- Submit Button -->
-                <button type="submit" class="tutor-submit-btn">Submit Application</button>
+                <button type="submit" class="tutor-submit-btn">Register as a Tutor</button>
             </form>
 
             <p class="tutor-login-link">
-                Already have a tutor account? <a href="dashboard.html">Back to Dashboard</a>
+                Already have a tutor account? <a href="login.html">Login</a>
             </p>
         </div>
     </div>
@@ -68,28 +80,68 @@
     <script>
         const form = document.getElementById('tutorSignUpForm');
 
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async (e) => {
+
+            // Prevent page reload or reset of values on submit button click 
             e.preventDefault();
-
-            const experience = document.getElementById('experience').value;
-            const subject = document.getElementById('subject').value;
-
+            // On click, acquire the tutor info from the text boxes
+            const experience = document.getElementById('experience').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const education_level = document.getElementById('education-level').value.trim();
             // Validate inputs
-            if (!experience || !subject) {
+            if (!experience || !subject || !education_level) {
                 alert('Please fill in all fields.');
                 return;
             }
 
-            // Simulate form submission
-            alert(`Application submitted successfully!\n\nExperience: ${experience} years\nSubject: ${subject}\n\nWe'll review your application and get back to you soon!`);
+            try {
+            // -------------------------------| API FLOW |-------------------------------
+            // fetch /api/auth/tutors { method: POST } -> authRouter.js -> authController.js 
+            // -> addTutor(email, password) -> res.SUCCESS/FAILURE                           
+            // -------------------------------|----------|-------------------------------
 
-            // Reset form
-            form.reset();
+                // Step 1: Verify login info via fetch to server login endpoint
+                const addTutorRes = await fetch("/api/auth/tutors", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        experience: experience,
+                        subject: subject,
+                        education_level: education_level
+                    })
+                });
 
-            // Redirect to dashboard
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1500);
+                // convert response stream into usable object
+                // handle non JSON error if returned by server
+                const addTutorData = await addTutorRes.json().catch(() => null);
+
+                // validate response object as viable
+                if (!addTutorRes.ok || !addTutorData?.success) {
+                    alert("Failed to add tutor: " + (addTutorData?.error || `HTTP ${addTutorRes.status}`));
+                    return;
+                }
+
+                // The session.user.role that we just updated gets returned for validation
+                const role = addTutorData.user?.role; 
+
+                // Quick verification & clear UI indication of success
+                if (role === "tutor") {
+                    alert("You are now registered as a tutor!");
+                    window.location.href = "tutorDashboard.html";
+                    return;
+                }
+
+                // if role !== tutor, throw a fit! It could only make it this far if
+                // if was able to sneak past several iteratiosn of error handling!
+                alert("Session error: tutor role unconfirmed.");
+                console.error("Unexpected user object:", addTutorData.user);
+                window.location.href = "login.html";
+
+            } catch (err) {
+                console.error('Error accessing /api/auth/tutors endpoint:', err);
+                alert('Network/server error. Check console.');
+            }
         });
     </script>
 </body>

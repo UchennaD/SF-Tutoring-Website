@@ -77,15 +77,28 @@
         // Auth guard (failsafe in case middleware not implemented)
         async function guardTutor() {
             try {
+                // Fetch current user session from server
                 const res = await fetch('/api/auth/session', { credentials: 'include' });
+
+                // If session expired or missing, KICK immediately
                 if (!res.ok) {
                     window.location.href = 'login.html';
                     return false;
                 }
+
+                // Parse response stream
                 const data = await res.json();
+                // Another check on the actual properties of the response stream
+                if (!data?.success) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+
+                // extract role value from session to evaluate permission
                 const role = data?.user?.role;
 
-                // Simple redirect if session expired or invalid/broken roles (this will prevent infinite redirects & crash)
+                // do NOT redirect to studentDashboard on the off chance session has invalid/expired roles 
+                // (this will prevent infinite redirects between dashboards and resulting crash)
                 if ((!role) || (role !== 'tutor' && role !== 'student')) {
                     window.location.href = 'login.html';
                     return false;

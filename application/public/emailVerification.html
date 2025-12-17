@@ -100,8 +100,8 @@
                     return;
                 }
 
-                // Step 2: Create User
-                const createRes = await fetch("/api/auth/create", {
+                // Step 2: Create Student 
+                const createRes = await fetch("/api/auth/students", { // formerly /auth/create - resource name is more RESTful 
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(pending)

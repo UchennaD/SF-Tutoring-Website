@@ -142,7 +142,7 @@ export async function addTutorAvailability(req, res) {
 
         // in addition to frontend input, get existing tutor info from 'tutors' 
         const [tutorData] = await connection.execute(
-            `SELECT subjects_offered, tutor_rating, image_url
+            `SELECT subjects_offered, rating
             FROM tutors
             WHERE tutor_id = ?
             LIMIT 1`,
@@ -165,9 +165,8 @@ export async function addTutorAvailability(req, res) {
         // while tutoring_sessions.subjects is JSON NOT NULL
         const subjects = subjectsTextToJSON(tutorInfo.subjects_offered);
         
-        // Extract tutor info for later injection into tutoring_sessions entry
-        const rating = tutorInfo.tutor_rating;
-        const image = tutorInfo.image_url;
+        // tutors table column is `rating` (decimal(3,2)); tutoring_sessions expects decimal(2,1)
+        const rating = Math.round((Number(tutorInfo.rating) || 0) * 10) / 10;
 
         const sessionDates = [];
         
@@ -203,8 +202,8 @@ export async function addTutorAvailability(req, res) {
             await connection.execute(
                 `INSERT INTO tutoring_sessions 
                  (tutor_name, subjects, mode, session_date, time_slot, 
-                  tutor_rating, description, image_url, is_booked, tutor_id) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
+                  tutor_rating, description, is_booked, tutor_id) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)`,
                 [
                     tutorName,
                     subjects,
@@ -213,7 +212,6 @@ export async function addTutorAvailability(req, res) {
                     time_slot,
                     rating,
                     'Available for tutoring',
-                    image,
                     tutorId
                 ]
             );

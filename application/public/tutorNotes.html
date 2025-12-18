@@ -34,6 +34,10 @@
             <button class="studentBtn" data-student="allison">Allison</button>
             <button class="studentBtn" data-student="max">Max</button>
             <button class="studentBtn" data-student="tori">Tori</button>
+            
+            <hr style="margin: 20px 0;">
+            <button id="addStudentBtn" class="studentBtn" style="background-color: #2196F3; color: white;">+ Add Student</button>
+            <button id="newNoteBtn" class="studentBtn" style="background-color: #4CAF50; color: white;">+ New Note</button>
         </div>
     
         <!-- NOTES LIST -->
@@ -68,33 +72,95 @@
 <script>
     const tutorData = { 
         bryce: [
-            { session: "Session 1 - Calculus", subject: "math", content: "resources/notes/SampleNotes1.jpg" },
-            { session: "Session 2 - Python", subject: "csc", content: "resources/notes/SampleNotes2.jpg" },
-            { session: "Session 3 - Algebra", subject: "math", content: "resources/notes/SampleNotes3.jpg" }
+            { id: 1, session: "Session 1 - Calculus", subject: "math", content: "resources/notes/SampleNotes1.jpg", isImage: true },
+            { id: 2, session: "Session 2 - Python", subject: "csc", content: "resources/notes/SampleNotes2.jpg", isImage: true },
+            { id: 3, session: "Session 3 - Algebra", subject: "math", content: "resources/notes/SampleNotes3.jpg", isImage: true }
         ],
         allison: [
-            { session: "Session 1 - Essay Writing", subject: "english", content: "resources/notes/SampleNotes3.jpg" },
-            { session: "Session 2 - Chemistry", subject: "science", content: "resources/notes/SampleNotes1.jpg" }
+            { id: 4, session: "Session 1 - Essay Writing", subject: "english", content: "resources/notes/SampleNotes3.jpg", isImage: true },
+            { id: 5, session: "Session 2 - Chemistry", subject: "science", content: "resources/notes/SampleNotes1.jpg", isImage: true }
         ],
         max: [
-            { session: "Session 1 - Physics", subject: "science", content: "resources/notes/SampleNotes4.jpg" },
-            { session: "Session 2 - Data Structures", subject: "csc", content: "resources/notes/SampleNotes1.jpg" },
-            { session: "Session 3 - Biology", subject: "science", content: "resources/notes/SampleNotes2.jpg" }
+            { id: 6, session: "Session 1 - Physics", subject: "science", content: "resources/notes/SampleNotes4.jpg", isImage: true },
+            { id: 7, session: "Session 2 - Data Structures", subject: "csc", content: "resources/notes/SampleNotes1.jpg", isImage: true },
+            { id: 8, session: "Session 3 - Biology", subject: "science", content: "resources/notes/SampleNotes2.jpg", isImage: true }
         ],
         tori: [
-            { session: "Session 1 - Literature", subject: "english", content: "resources/notes/SampleNotes2.jpg" },
-            { session: "Session 2 - Web Dev", subject: "csc", content: "resources/notes/SampleNotes4.jpg" }
+            { id: 9, session: "Session 1 - Literature", subject: "english", content: "resources/notes/SampleNotes2.jpg", isImage: true },
+            { id: 10, session: "Session 2 - Web Dev", subject: "csc", content: "resources/notes/SampleNotes4.jpg", isImage: true }
         ]
     };
 
+    // Load manual notes from localStorage
+    function loadManualNotes() {
+        const saved = localStorage.getItem('manualNotes');
+        if (saved) {
+            const manualNotes = JSON.parse(saved);
+            Object.keys(manualNotes).forEach(student => {
+                if (tutorData[student]) {
+                    tutorData[student] = [...tutorData[student], ...manualNotes[student]];
+                }
+            });
+        }
+    }
+
+    // Load students from localStorage
+    function loadStudentsFromStorage() {
+        const saved = localStorage.getItem('students');
+        if (saved) {
+            const savedStudents = JSON.parse(saved);
+            savedStudents.forEach(studentName => {
+                if (!tutorData[studentName]) {
+                    tutorData[studentName] = [];
+                }
+            });
+        }
+    }
+
+    loadManualNotes();
+    loadStudentsFromStorage();
+
     let currentStudent = null;
     let currentFilter = 'all';
+    let currentEditingNote = null;
 
-     // Handle subject filter changes
-    document.getElementById('subjectFilter').addEventListener('change', (e) => {
-        currentFilter = e.target.value;
-        if (currentStudent) {
-            loadStudentNotes(currentStudent);
+    // Render student buttons dynamically
+    function renderStudentButtons() {
+        const container = document.getElementById('colStudents');
+        const newNoteBtn = document.getElementById('newNoteBtn');
+        const addStudentBtn = document.getElementById('addStudentBtn');
+        
+        // Remove all old student buttons
+        document.querySelectorAll('.studentBtn[data-student]').forEach(btn => btn.remove());
+        
+        // Add student buttons back in order
+        const students = Object.keys(tutorData);
+        students.forEach(student => {
+            const btn = document.createElement('button');
+            btn.className = 'studentBtn';
+            btn.dataset.student = student;
+            btn.textContent = student.charAt(0).toUpperCase() + student.slice(1);
+            btn.addEventListener('click', () => {
+                document.querySelectorAll(".studentBtn[data-student]").forEach(b => b.classList.remove("selected"));
+                btn.classList.add("selected");
+                loadStudentNotes(student);
+            });
+            container.insertBefore(btn, addStudentBtn);
+        });
+    }
+
+    // Handle adding new student
+    document.getElementById('addStudentBtn').addEventListener('click', () => {
+        const studentName = prompt('Enter student name:');
+        if (studentName && studentName.trim()) {
+            const normalizedName = studentName.trim().toLowerCase();
+            if (tutorData[normalizedName]) {
+                alert('Student already exists!');
+                return;
+            }
+            tutorData[normalizedName] = [];
+            saveStudentsToStorage();
+            renderStudentButtons();
         }
     });
 
@@ -126,29 +192,185 @@
 
                 noteBtn.classList.add("selected");
 
-                document.getElementById('noteContent').innerHTML = `
-                    <img src="${session.content}" style="width:100%; max-width:700px;">
-                `;
+                if (session.isImage) {
+                    document.getElementById('noteContent').innerHTML = `
+                        <img src="${session.content}" style="width:100%; max-width:700px;">
+                    `;
+                } else {
+                    displayNote(session);
+                }
             });
 
             list.appendChild(noteBtn);
         });
 
-        document.getElementById("noteContent").textContent = "Select a session to view notes.";
+        document.getElementById("noteContent").innerHTML = '<p style="color: #999; text-align: center; margin-top: 50px;">Select a session to view notes.</p>';
     }
 
-    // When a student button is clicked load their notes
-    document.querySelectorAll('.studentBtn').forEach(button => {
-        button.addEventListener('click', () => {
-            document.querySelectorAll(".studentBtn")
-                .forEach(btn => btn.classList.remove("selected"));
-            
-            button.classList.add("selected");
-
-            const studentKey = button.dataset.student;
-            loadStudentNotes(studentKey);
+    // Display a text note with edit option
+    function displayNote(note) {
+        currentEditingNote = note;
+        const content = document.getElementById('noteContent');
+        content.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0;">${note.session}</h3>
+                <div>
+                    <button id="editBtn" class="noteBtn" style="background-color: #2196F3; color: white; margin-right: 5px;">Edit</button>
+                    <button id="deleteBtn" class="noteBtn" style="background-color: #f44336; color: white;">Delete</button>
+                </div>
+            </div>
+            <div id="noteText" style="padding: 15px; background: #f9f9f9; border-radius: 5px; min-height: 300px; font-family: 'Segoe UI', sans-serif; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;">
+                ${note.content}
+            </div>
+        `;
+        
+        document.getElementById('editBtn').addEventListener('click', () => {
+            showNoteEditor(note);
         });
+
+        document.getElementById('deleteBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete this note?')) {
+                deleteNote(note);
+            }
+        });
+    }
+
+    // Show note editor (create or edit)
+    function showNoteEditor(note) {
+        const content = document.getElementById('noteContent');
+        const isEditing = note !== null;
+        const sessionName = note ? note.session : 'New Note';
+        const noteText = note ? note.content : '';
+
+        content.innerHTML = `
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center;">
+                <input type="text" id="sessionTitle" placeholder="Session Name" value="${isEditing ? sessionName : ''}" 
+                    style="font-size: 16px; padding: 10px; flex: 1; min-width: 150px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                <select id="sessionSubject" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;">
+                    <option value="math" ${note && note.subject === 'math' ? 'selected' : ''}>Math</option>
+                    <option value="science" ${note && note.subject === 'science' ? 'selected' : ''}>Science</option>
+                    <option value="csc" ${note && note.subject === 'csc' ? 'selected' : ''}>Computer Science</option>
+                    <option value="english" ${note && note.subject === 'english' ? 'selected' : ''}>English</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 5px; margin-bottom: 15px;">
+                <button id="boldBtn" style="padding: 8px 12px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; font-weight: bold;"><strong>B</strong></button>
+                <button id="italicBtn" style="padding: 8px 12px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;"><i>I</i></button>
+                <button id="underlineBtn" style="padding: 8px 12px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;"><u>U</u></button>
+            </div>
+            <textarea id="noteEditor" placeholder="Start typing your notes..." 
+                style="flex: 1; padding: 15px; border: 1px solid #ddd; border-radius: 4px; font-family: 'Segoe UI', sans-serif; font-size: 14px; resize: vertical; box-sizing: border-box; min-height: 400px;">${noteText}</textarea>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="saveBtn" style="padding: 12px 25px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; flex: 0 0 auto;">Save</button>
+                <button id="cancelBtn" style="padding: 12px 25px; background-color: #999; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; flex: 0 0 auto;">Cancel</button>
+            </div>
+        `;
+
+        const editor = document.getElementById('noteEditor');
+
+        // Text formatting buttons
+        document.getElementById('boldBtn').addEventListener('click', () => {
+            wrapText(editor, '**', '**');
+        });
+        document.getElementById('italicBtn').addEventListener('click', () => {
+            wrapText(editor, '*', '*');
+        });
+        document.getElementById('underlineBtn').addEventListener('click', () => {
+            wrapText(editor, '__', '__');
+        });
+
+        // Save button
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const title = document.getElementById('sessionTitle').value.trim();
+            const subject = document.getElementById('sessionSubject').value;
+            const text = editor.value.trim();
+
+            if (!title || !text) {
+                alert('Please enter a session name and notes');
+                return;
+            }
+
+            if (isEditing && note) {
+                // Update existing note
+                note.session = title;
+                note.subject = subject;
+                note.content = text;
+            } else {
+                // Create new note
+                const newNote = {
+                    id: Date.now(),
+                    session: title,
+                    subject: subject,
+                    content: text,
+                    isImage: false
+                };
+                tutorData[currentStudent].push(newNote);
+            }
+
+            saveNotesToStorage();
+            loadStudentNotes(currentStudent);
+        });
+
+        // Cancel button
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            loadStudentNotes(currentStudent);
+        });
+
+        editor.focus();
+    }
+
+    // Helper function to wrap selected text
+    function wrapText(textarea, before, after) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+        const newText = textarea.value.substring(0, start) + before + selectedText + after + textarea.value.substring(end);
+        textarea.value = newText;
+        textarea.focus();
+    }
+
+    // Delete a note
+    function deleteNote(note) {
+        if (currentStudent && tutorData[currentStudent]) {
+            const index = tutorData[currentStudent].findIndex(n => n.id === note.id);
+            if (index > -1) {
+                tutorData[currentStudent].splice(index, 1);
+                saveNotesToStorage();
+                loadStudentNotes(currentStudent);
+            }
+        }
+    }
+
+    // Save students to localStorage
+    function saveStudentsToStorage() {
+        const students = Object.keys(tutorData);
+        localStorage.setItem('students', JSON.stringify(students));
+    }
+
+    // Save notes to localStorage
+    function saveNotesToStorage() {
+        const manualNotes = {};
+        Object.keys(tutorData).forEach(student => {
+            manualNotes[student] = tutorData[student].filter(note => !note.isImage);
+        });
+        localStorage.setItem('manualNotes', JSON.stringify(manualNotes));
+    }
+
+    // Handle subject filter changes
+    document.getElementById('subjectFilter').addEventListener('change', (e) => {
+        currentFilter = e.target.value;
+        if (currentStudent) {
+            loadStudentNotes(currentStudent);
+        }
     });
+
+    // Handle new note button
+    document.getElementById('newNoteBtn').addEventListener('click', () => {
+        showNoteEditor(null);
+    });
+
+    // Render initial student buttons
+    renderStudentButtons();
 </script>
             
         

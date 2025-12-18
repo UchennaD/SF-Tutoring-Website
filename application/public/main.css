@@ -974,8 +974,9 @@ h3 {
 #noteContent {
     white-space: pre-wrap;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
     height: 100%;
     color: #666;
     font-style: italic;

@@ -11,7 +11,7 @@
         <div id="header-left">
             <img src="resources/SFSUSeal.png" id="SFSUSeal" alt="SFSU Seal">
             <h2 id="siteTitle">
-                <a id="homeLink" href="tutorDashboard.html">Gator Tutor</a>
+                <a id="homeLink" href="index.html">Gator Tutor</a>
             </h2>
         </div>
         <div id="header-right">
@@ -249,7 +249,7 @@
                             <p><strong>${subjects} tutor session</strong></p>
                             <p>${tutor_session.student_name}</p>
                             <button class="msg-btn">Message ${tutor_session.student_name.split(' ')[0]}</button>
-                            <button class="cancel-btn">Cancel Appointment</button>
+                            <button class="cancel-btn" onclick="cancelSession(${tutor_session.booking_id}, ${tutor_session.session_id})">Cancel Appointment</button>
                             `;
                         container.appendChild(div);
 
@@ -269,6 +269,30 @@
                 console.error('Error loading sessions:', err);
             }
         }
+
+        async function cancelSession(bookingId, sessionId) {
+            try {
+                const response = await fetch(`/api/book`, {
+                    method: 'DELETE',
+                    credentials: 'include',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        booking_id: bookingId,
+                        session_id: sessionId
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    loadUpcomingSessions();
+                } else {
+                    alert(result.error || 'Failed to remove');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
 
         function formatTime(dt) {
             if (!dt) return '';

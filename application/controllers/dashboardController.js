@@ -1,5 +1,5 @@
 import pool from '../config/db.js';
-
+// GET /api/upcoming-sessions
 export async function upcomingSessions(req, res) {
     
     // WAY simpler than relying on external fetch & parameterization from frontend
@@ -25,6 +25,7 @@ export async function upcomingSessions(req, res) {
               b.student_id,
               b.tutor_id,
               s.full_name AS student_name,
+              ts.id AS session_id,
               ts.tutor_name,
               ts.session_date,
               ts.time_slot,

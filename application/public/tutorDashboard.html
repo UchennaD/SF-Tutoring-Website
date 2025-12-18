@@ -210,9 +210,9 @@
                     data.upcoming.forEach(tutor_session => {
                         const div = document.createElement('div');
                         div.classList.add('appt');
-                        // Create SAFE date for HTML template
+                        // Create SAFE date for HTML template (UPDATE: Fixed, now identical to student dash)
                         const nullSafeDate = tutor_session.session_date
-                            ? new Date(tutor_session.session_date + 'T00:00:00')
+                            ? new Date(tutor_session.session_date)
                             : null;
                         const htmlDate = nullSafeDate
                             ? nullSafeDate.toLocaleDateString('en-US', {
@@ -222,13 +222,30 @@
                                   day: 'numeric'
                               })
                             : 'Date not set';
+
+                        // Create SAFE time for HTML template (DB format: HH:MM:SS)
+                        const rawTimeSlot = tutor_session?.time_slot ?? tutor_session?.session?.time_slot;
+                        let htmlTime = 'Time not set';
+
+                        if (rawTimeSlot) {
+                            const parts = String(rawTimeSlot).split(':');
+                            const hh = Number(parts[0]);
+                            const mm = Number(parts[1]);
+
+                            if (!Number.isNaN(hh) && !Number.isNaN(mm)) {
+                                const t = new Date();
+                                t.setHours(hh, mm, 0, 0);
+                                htmlTime = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                            }
+                        }
+
                         // Create SAFE subjects for HTML template by converting from array to string, if not already JSON string (using an IIFE)
                         const subjects = Array.isArray(tutor_session.subjects) ? tutor_session.subjects.join(', ')
                         : (() => { try { return JSON.parse(tutor_session.subjects).join(', '); } catch { return String(tutor_session.subjects); } })();
 
                         // --------------- TUTOR SESSIONS TEMPLATE ---------------
                         div.innerHTML = `
-                            <h2>${htmlDate}</h2>
+                            <h2>${htmlDate} at ${htmlTime}</h2>
                             <p><strong>${subjects} tutor session</strong></p>
                             <p>${tutor_session.student_name}</p>
                             <button class="msg-btn">Message ${tutor_session.student_name.split(' ')[0]}</button>

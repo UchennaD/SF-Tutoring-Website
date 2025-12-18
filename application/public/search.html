@@ -15,7 +15,10 @@
         </div>
         <div id="header-right">
             <a href="aboutPage.html">About Us</a>
-            <a href="search.html">Find Tutors</a>
+            
+            <!-- redundant link (we're already on search) -->
+            <!-- <a href="search.html">Find Tutors</a> -->
+             
             <a href="login.html">Login</a>
             <a href="studentSignUp.html">Sign Up</a>
         </div>
@@ -126,7 +129,7 @@
         // toggle menu visibility
         filterButton.addEventListener('click', () => {
             filterMenu.classList.toggle('hidden');
-        });
+        }); 
 
         // close filter box
         closeFilters.addEventListener('click', () => {

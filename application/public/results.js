@@ -3,17 +3,84 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     // event.preventDefault();
 
     // get search terms from original landing page
-    const params = JSON.parse(sessionStorage.getItem("searchParams"));
-    
+    const params = JSON.parse(sessionStorage.getItem("searchParams") || "{}") || {};
 
-    console.log("Subject:", params.subject);
-    console.log("Mode:", params.mode);
-    console.log("Min Rating:", params.minrating);
-    console.log("Date:", params.date);
+    // Normalize subject input so users can type prefixes (e.g., "CSC 220") while tutors store natural language (e.g., "Computer Science")
+    function normalizeSubjectInput(raw) {
+        if (!raw) return "";
+
+        const cleaned = String(raw)
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+        if (!cleaned) return "";
+
+        const alias = {
+            csc: "computer science",
+            cs: "computer science",
+            compsci: "computer science",
+            phys: "physics",
+            phy: "physics",
+            math: "math",
+            bus: "business",
+            fin: "finance",
+            acct: "accounting",
+            eng: "english",
+            engl: "english",
+            chem: "chemistry",
+            bio: "biology",
+            biol: "biology",
+            stats: "statistics",
+            stat: "statistics",
+            econ: "economics",
+            cine: "film",
+            geo: "geology",
+            comm: "communications",
+            soc: "sociology",
+            ast: "astronomy",
+            astr: "astronomy",
+            phil: "philosophy",
+            engr: "engineering",
+            hum: "humanities",
+            lit: "literature",
+            psy: "psychology",
+            poli: "political science",
+            arth: "art history",
+            eths: "ethnic studies",
+            wgs: "gender studies"
+        };
+
+        // If user typed something like "csc 220" or "phys101", extract leading alphabetical prefix
+        const m = cleaned.match(/^([a-z]{2,8})(?:\s*\d{2,4})?(?:\b|$)/);
+        if (m) {
+            const prefix = m[1];
+            if (alias[prefix]) return alias[prefix];
+        }
+
+        // If not, just keep the cleaned natural-language query (e.g., "computer science")
+        return cleaned;
+    }
+
+    const subjectRaw = params.subjectRaw ?? params.subject ?? "";
+    const subject = normalizeSubjectInput(subjectRaw);
+    const mode = params.mode ?? "";
+    const minrating = params.minrating ?? "";
+    const date = params.date ?? "";
+
+    console.log("Subject (raw):", subjectRaw);
+    console.log("Subject (normalized):", subject);
+    console.log("Mode:", mode);
+    console.log("Min Rating:", minrating);
+    console.log("Date:", date);
     
 
      try {
-        const response = await fetch(`/api/search?subject=${params.subject}&mode=${params.mode}&minrating=${params.minrating}&date=${params.date}`);
+        const response = await fetch(
+            `/api/search?subject=${encodeURIComponent(subject)}&mode=${encodeURIComponent(mode)}&minrating=${encodeURIComponent(minrating)}&date=${encodeURIComponent(date)}`
+        );
         const results = await response.json();
         console.log("Fetched tutor results:", results);
 

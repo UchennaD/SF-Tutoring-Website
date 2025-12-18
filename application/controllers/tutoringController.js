@@ -2,7 +2,13 @@
 import pool from '../config/db.js';
 
 export async function searchTutors(req, res) {
-  const { subject, mode, minrating, date } = req.query;
+
+  // *ANOTHER* layer of subject sanitization/error prevention 
+  // We have to make sure empty filters ARE NOT just NULL, but a literal empty string. 
+  const subject = (req.query.subject ?? '').toString();
+  const mode = (req.query.mode ?? '').toString();
+  const minrating = (req.query.minrating ?? '').toString();
+  const date = (req.query.date ?? '').toString();
 
   try {
     // Since the pool is already configured to the 'db14' database,

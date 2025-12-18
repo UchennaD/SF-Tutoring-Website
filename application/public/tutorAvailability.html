@@ -46,9 +46,17 @@
                             <option value="specific">Specific Date</option>
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label for="mode">Session Mode:</label>
+                        <select id="mode">
+                            <option value="Online">Online</option>
+                            <option value="In-Person">In Person</option>
+                        </select>
+                    </div>
                     
                     <div class="form-group" id="dayOfWeekGroup">
-                        <label for="dayOfWeek">Day of the Week:</label>
+                        <label for="dayOfWeek" style="margin-bottom: 20px;">Day of the Week:</label>
                         <select id="dayOfWeek">
                             <option value="Monday">Monday</option>
                             <option value="Tuesday">Tuesday</option>
@@ -57,6 +65,11 @@
                             <option value="Friday">Friday</option>
                             <option value="Saturday">Saturday</option>
                             <option value="Sunday">Sunday</option>
+                        </select>
+                        <label for="include-today">Today included?</label>
+                        <select id="include-today">
+                            <option value="true">Yes</option>
+                            <option value="false">No</option>
                         </select>
                     </div>
                     
@@ -90,6 +103,7 @@
                 <h3>Calendar View</h3>
                 <div style="margin-bottom: 10px; color: #666;">
                     (Green blocks indicate your available times)
+                </div>
                 <div id="availabilityCalendar" style="height: 500px;"></div>
             </div>
         </div>
@@ -108,7 +122,7 @@
         async function loadAvailability() {
             try {
                 // No ID needed - server knows from session
-                const response = await fetch('/api/tutor/availability');
+                const response = await fetch('/api/tutor/availability', { credentials: 'include' });
                 
                 if (response.status === 401) {
                     alert('Please log in as a tutor');
@@ -130,30 +144,47 @@
             e.preventDefault();
             
             const type = document.getElementById('availabilityType').value;
+            const mode = document.getElementById('mode').value;
             const startTime = document.getElementById('startTime').value;
             const endTime = document.getElementById('endTime').value;
+
+            if (!startTime || !endTime) {
+                alert('Please select a start and end time.');
+                return;
+            }
+            if (startTime >= endTime) {
+                alert('End time must be after start time.');
+                return;
+            }
             
             const data = {
-                start_time: startTime + ':00',
-                end_time: endTime + ':00',
-                is_recurring: type === 'recurring'
+                time_slot: `${startTime}:00`,       // TIME column expects HH:MM:SS
+                is_recurring: type === 'recurring',
+                mode: mode,                         // DB requires mode NOT NULL
             };
             
             if (type === 'recurring') {
+                // Day of weekly session
                 data.day_of_week = document.getElementById('dayOfWeek').value;
+                // Whether to include current day or start next week
+                data.include_today = (document.getElementById('include-today').value.trim() === "true") ? true : false;
             } else {
+                // Only offers one session on exact date
                 data.specific_date = document.getElementById('specificDate').value;
             }
             
             try {
+                // POST /tutor/availability -> populate tutoring_sessions table
                 const response = await fetch('/api/tutor/availability', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    credentials: 'include',
                     body: JSON.stringify(data)
                 });
                 
+                // turn into something useful
                 const result = await response.json();
                 
                 if (result.success) {
@@ -171,7 +202,8 @@
         async function deleteAvailability(sessionId) {
             try {
                 const response = await fetch(`/api/tutor/availability/${sessionId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    credentials: 'include'
                 });
                 
                 const result = await response.json();
@@ -186,8 +218,8 @@
         }
 
         function initializeCalendar() {
-            const calendarEl = document.getElementById('availabilityCalendar');
-            calendar = new FullCalendar.Calendar(calendarEl, {
+            const calendarElement = document.getElementById('availabilityCalendar');
+            calendar = new FullCalendar.Calendar(calendarElement, {
                 initialView: 'timeGridWeek',
                 headerToolbar: {
                     left: 'prev,next today',
@@ -218,20 +250,20 @@
 
         function displayAvailability(availability) {
             const container = document.getElementById('currentAvailability');
-            
-            if (availability.length === 0) {
+
+            if (!availability || availability.length === 0) {
                 container.innerHTML = '<p style="color: #666;">No availability set</p>';
                 return;
             }
-            
+
             container.innerHTML = availability.map(slot => {
-                const timeText = `${formatTime(slot.start_time)} - ${formatTime(slot.end_time)}`;
-                const dayText = slot.is_recurring ? `${slot.day_of_week}s` : new Date(slot.specific_date).toLocaleDateString();
-                
+                const dayText = new Date(slot.session_date).toLocaleDateString();
+                const timeText = formatTime(slot.time_slot);
+
                 return `
                     <div class="availability-slot" style="margin-bottom: 10px;">
                         <strong>${dayText}</strong><br>
-                        ${timeText}
+                        ${timeText} (${slot.mode})
                         <button class="cancel-btn" style="float: right; padding: 5px 10px;" onclick="deleteAvailability(${slot.id})">
                             Remove
                         </button>
@@ -242,40 +274,44 @@
 
         function updateCalendarEvents(availability) {
             calendar.getEvents().forEach(event => event.remove());
-            
+
+            if (!availability) return;
+
             availability.forEach(slot => {
-                if (slot.is_recurring) {
-                    const dayMap = {
-                        'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
-                        'Thursday': 4, 'Friday': 5, 'Saturday': 6, 'Sunday': 0
-                    };
-                    
-                    for (let week = 0; week < 4; week++) {
-                        const date = new Date();
-                        const currentDay = date.getDay();
-                        const targetDay = dayMap[slot.day_of_week];
-                        let daysUntilTarget = (targetDay - currentDay + 7) % 7;
-                        
-                        date.setDate(date.getDate() + daysUntilTarget + (week * 7));
-                        
-                        calendar.addEvent({
-                            id: `${slot.id}-${week}`,
-                            title: 'Available',
-                            start: `${date.toISOString().split('T')[0]}T${slot.start_time}`,
-                            end: `${date.toISOString().split('T')[0]}T${slot.end_time}`,
-                            backgroundColor: '#4CAF50'
-                        });
-                    }
-                }
+                const start = `${slot.session_date}T${slot.time_slot}`;
+                const end = addOneHourISO(start);
+
+                calendar.addEvent({
+                    id: String(slot.id),
+                    title: 'Available',
+                    start,
+                    end,
+                    backgroundColor: '#4CAF50'
+                });
             });
         }
 
+        function addOneHourISO(isoStart) {
+            const d = new Date(isoStart);
+            d.setHours(d.getHours() + 1);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            const ss = String(d.getSeconds()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
+        }
 
         function formatTime(timeString) {
-            const [hours, minutes] = timeString.split(':');
-            const hour = parseInt(hours);
+            const parts = String(timeString).split(':');
+            const hours = parts[0];
+            const minutes = parts[1] || '00';
+
+            const hour = parseInt(hours, 10);
             const ampm = hour >= 12 ? 'PM' : 'AM';
             const displayHour = hour % 12 || 12;
+
             return `${displayHour}:${minutes} ${ampm}`;
         }
     </script>

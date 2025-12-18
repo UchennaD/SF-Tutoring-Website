@@ -1,7 +1,7 @@
 import pool from '../config/db.js';
 
 // Helper function to generate recurring dates
-function generateRecurringDates(dayOfWeek, weeksAhead = 4) {
+function generateRecurringDates(dayOfWeek, weeksAhead = 4, includeToday = true) {
     const dates = [];
     const dayMap = {
         'Monday': 1,
@@ -20,7 +20,7 @@ function generateRecurringDates(dayOfWeek, weeksAhead = 4) {
         const currentDay = date.getDay();
         let dayUntilTarget = (targetDay - currentDay + 7) % 7;
 
-        if (week === 0 && dayUntilTarget === 0) {
+        if (week === 0 && dayUntilTarget === 0 && !includeToday) {
             dayUntilTarget = 7; // Skip to next week if today is the target day
         }
 
@@ -63,14 +63,32 @@ export async function getTutorAvailability(req, res) {
     }
 }
 
+// Helper function for addTutorAvailability
+function subjectsTextToJSON(subjectsText) {
+  const arr = String(subjectsText || "")
+    .split(",")              // split ONLY on commas (keeps “Computer Science” intact)
+    .map(s => s.trim())      // remove leading/trailing whitespace
+    .filter(Boolean);        // drop empty entries
+
+  return JSON.stringify(arr.length ? arr : ["General"]);
+}
+
 // POST /api/tutor/availability
 export async function addTutorAvailability(req, res) {
     const tutorId = req.session.user?.id;
-    
-    if (!tutorId) {
+    const tutorName = req.session.user?.fullName;
+
+    if (!tutorId || !tutorName) {
         return res.status(401).json({ 
             success: false, 
-            error: "Please log in as a tutor to add availability" 
+            error: 'Please log in as a tutor to add availability'
+        });
+    }
+
+    if (req.session.user?.role !== 'tutor') {
+        return res.status(403).json({
+            success: false,
+            error: 'Tutor role required to add availability'
         });
     }
     
@@ -80,45 +98,82 @@ export async function addTutorAvailability(req, res) {
         await connection.beginTransaction();
         
         const { 
-            time_slot,
-            subjects,
-            mode,
-            description,
-            is_recurring, 
-            specific_date, 
-            day_of_week 
+            time_slot: rawTimeSlot,
+            is_recurring,
+            mode: rawMode,
+            day_of_week,
+            include_today,
+            specific_date
         } = req.body;
         
-        // Get tutor info for the session records
-        const [tutorInfo] = await connection.execute(
-            `SELECT DISTINCT tutor_name, tutor_rating, image_url 
-             FROM tutoring_sessions 
-             WHERE tutor_id = ? 
-             LIMIT 1`,
-            [tutorId]
-        );
+        // Normalize time_slot to HH:MM:SS for MySQL TIME
+        const time_slot = (typeof rawTimeSlot === 'string' && rawTimeSlot.length === 5)
+            ? `${rawTimeSlot}:00`
+            : rawTimeSlot;
+
         
-        // If no existing sessions, get from users/tutors table
-        let tutorData;
-        if (tutorInfo.length > 0) {
-            tutorData = tutorInfo[0];
-        } else {
-            // Fallback - you might need to adjust based on your users table structure
-            const [userInfo] = await connection.execute(
-                `SELECT name FROM users WHERE id = ?`,
-                [tutorId]
-            );
-            tutorData = {
-                tutor_name: userInfo[0]?.name || 'Tutor',
-                tutor_rating: 0.0,
-                image_url: 'images/default.png'
-            };
+        // Frontend should send exact DB enum values: 'Online' | 'In-Person'
+        const mode = rawMode || 'Online';
+        
+        const includeToday = (include_today === undefined || include_today === null) ? true : Boolean(include_today);
+
+        if (!time_slot) {
+            await connection.rollback();
+            return res.status(422).json({ success: false, error: 'time_slot is required' });
         }
+
+        if (mode !== 'Online' && mode !== 'In-Person') {
+            await connection.rollback();
+            return res.status(422).json({ success: false, error: "mode must be 'Online' or 'In-Person'" });
+        }
+
+        if (is_recurring) {
+            if (!day_of_week) {
+                await connection.rollback();
+                return res.status(422).json({ success: false, error: 'day_of_week is required for recurring availability' });
+            }
+        } else {
+            if (!specific_date) {
+                await connection.rollback();
+                return res.status(422).json({ success: false, error: 'specific_date is required for non-recurring availability' });
+            }
+        }
+
+
+        // in addition to frontend input, get existing tutor info from 'tutors' 
+        const [tutorData] = await connection.execute(
+            `SELECT subjects_offered, tutor_rating, image_url
+            FROM tutors
+            WHERE tutor_id = ?
+            LIMIT 1`,
+            [tutorId]
+        )
+
+        // Ensure entry was found
+        if (!tutorData || tutorData.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({
+                success: false,
+                error: 'No tutor entry associated with you. Please register.'
+            });
+        }
+        // Destructure row to get tutorInfo
+        const tutorInfo = tutorData[0];
         
+
+        // tutors.subjects_offered could be plaintext, CSV or JSON; 
+        // while tutoring_sessions.subjects is JSON NOT NULL
+        const subjects = subjectsTextToJSON(tutorInfo.subjects_offered);
+        
+        // Extract tutor info for later injection into tutoring_sessions entry
+        const rating = tutorInfo.tutor_rating;
+        const image = tutorInfo.image_url;
+
         const sessionDates = [];
         
+        // Fill sessionDates with the series of dates (if recurring) or individual date (if not)
         if (is_recurring) {
-            const dates = generateRecurringDates(day_of_week, 4);
+            const dates = generateRecurringDates(day_of_week, 4, includeToday); // generate a month out
             sessionDates.push(...dates);
         } else {
             sessionDates.push(new Date(specific_date));
@@ -133,9 +188,9 @@ export async function addTutorAvailability(req, res) {
             // Check for existing slot
             const [existing] = await connection.execute(
                 `SELECT id FROM tutoring_sessions 
-                 WHERE tutor_id = ? 
-                 AND session_date = ? 
-                 AND time_slot = ?`,
+                WHERE tutor_id = ? 
+                AND session_date = ? 
+                AND time_slot = ?`,
                 [tutorId, sessionDate, time_slot]
             );
             
@@ -151,14 +206,14 @@ export async function addTutorAvailability(req, res) {
                   tutor_rating, description, image_url, is_booked, tutor_id) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
                 [
-                    tutorData.tutor_name,
-                    subjects || '["General"]',
-                    mode || 'Online',
+                    tutorName,
+                    subjects,
+                    mode,
                     sessionDate,
                     time_slot,
-                    tutorData.tutor_rating,
-                    description || 'Available for tutoring',
-                    tutorData.image_url,
+                    rating,
+                    'Available for tutoring',
+                    image,
                     tutorId
                 ]
             );

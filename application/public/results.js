@@ -78,12 +78,15 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                     const data = await res.json();
                     console.log("Booking response:", data);
 
+                    // TO-DO: (maybe?) Switch from simple ALERT to dynamic "apptConfirmation" page
+                    // I don't think we have time to implement this before the demo but...
+
                     if (data.success) {
                         alert("Session booked successfully!");
                         // runs AFTER user clicks "OK"
                         card.remove(); // remove the card from DOM
                         // redirect to dashboard after booking
-                        window.location.href = "dashboard.html";
+                        window.location.href = "studentDashboard.html";
                     } else {
                         alert("Booking failed: " + data.error);
                     }

@@ -59,7 +59,7 @@ export async function getTutorAvailability(req, res) {
 
     try {
             const [sessions] = await pool.execute(
-                `SELECT id, session_date, time_slot, subjects, mode, description 
+                `SELECT id, session_date, time_slot, start_time, end_time, subjects, mode, description 
                 FROM tutoring_sessions 
                 WHERE tutor_id = ? 
                 AND is_booked = 0 

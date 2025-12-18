@@ -284,8 +284,8 @@
                 calendar.addEvent({
                     id: String(slot.id),
                     title: 'Available',
-                    start,
-                    end,
+                    start: `${dateStr}T${slot.start_time}`,
+                    end: `${dateStr}T${slot.end_time}`,
                     backgroundColor: '#4CAF50'
                 });
             });

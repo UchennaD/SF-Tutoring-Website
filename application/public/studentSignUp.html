@@ -96,26 +96,26 @@
                     // role: "student" (NOT needed - base user IS NOW STUDENT by default, not 'user')
                 }
 
-                // save info in DB even before verifying (in case of crash mid-signup)
-                try {
-                    const saveRes = await fetch("/api/auth/email", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(pendingInfo)
-                });
+                // // save info in DB even before verifying (in case of crash mid-signup)
+                // try {
+                //     const saveRes = await fetch("/api/auth/email", {
+                //     method: "POST",
+                //     headers: { "Content-Type": "application/json" },
+                //     body: JSON.stringify(pendingInfo)
+                // });
 
-                const saveData = await saveRes.json();
+                // const saveData = await saveRes.json();
 
-                if (!saveData.success) {
-                    alert("Account already exists or failed to create.");
-                    return;
-                }
+                // if (!saveData.success) {
+                //     alert("Account already exists or failed to create.");
+                //     return;
+                // }
 
-                } catch (err) {
-                    console.error("Signup save error:", err);
-                    alert("Server error creating account.");
-                    return;
-                }
+                // } catch (err) {
+                //     console.error("Signup save error:", err);
+                //     alert("Server error creating account.");
+                //     return;
+                // }
 
                 // save this info so we can pass to backend if OTP successful
                 sessionStorage.setItem("pendingUserInfo", JSON.stringify(pendingInfo));

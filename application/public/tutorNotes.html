@@ -39,8 +39,15 @@
         <!-- NOTES LIST -->
         <div class="column" id="colNotes">
             <h3>Sessions</h3>
-            <button class="filterBtn">Filter</button>
 
+            <select id="subjectFilter" class="filterBtn" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                <option value="all">All Subjects</option>
+                <option value="math">Math</option>
+                <option value="science">Science</option>
+                <option value="csc">Computer Science</option>
+                <option value="english">English</option>
+            </select>
+        
             <div id="notesList">
                 <!-- Filled when a student is clicked -->
             </div>
@@ -61,56 +68,85 @@
 <script>
     const tutorData = { 
         bryce: [
-            { session: "Session 1", content: "resources/notes/SampleNotes1.jpg" },
-            { session: "Session 2", content: "resources/notes/SampleNotes2.jpg" }
+            { session: "Session 1 - Calculus", subject: "math", content: "resources/notes/SampleNotes1.jpg" },
+            { session: "Session 2 - Python", subject: "csc", content: "resources/notes/SampleNotes2.jpg" },
+            { session: "Session 3 - Algebra", subject: "math", content: "resources/notes/SampleNotes3.jpg" }
         ],
         allison: [
-            { session: "Session 1", content: "resources/notes/SampleNotes3.jpg" }
+            { session: "Session 1 - Essay Writing", subject: "english", content: "resources/notes/SampleNotes3.jpg" },
+            { session: "Session 2 - Chemistry", subject: "science", content: "resources/notes/SampleNotes1.jpg" }
         ],
         max: [
-            { session: "Session 1", content: "resources/notes/SampleNotes4.jpg" },
-            { session: "Session 2", content: "resources/notes/SampleNotes1.jpg" }
+            { session: "Session 1 - Physics", subject: "science", content: "resources/notes/SampleNotes4.jpg" },
+            { session: "Session 2 - Data Structures", subject: "csc", content: "resources/notes/SampleNotes1.jpg" },
+            { session: "Session 3 - Biology", subject: "science", content: "resources/notes/SampleNotes2.jpg" }
         ],
         tori: [
-            { session: "Session 1", content: "resources/notes/SampleNotes2.jpg" }
+            { session: "Session 1 - Literature", subject: "english", content: "resources/notes/SampleNotes2.jpg" },
+            { session: "Session 2 - Web Dev", subject: "csc", content: "resources/notes/SampleNotes4.jpg" }
         ]
     };
+
+    let currentStudent = null;
+    let currentFilter = 'all';
+
+     // Handle subject filter changes
+    document.getElementById('subjectFilter').addEventListener('change', (e) => {
+        currentFilter = e.target.value;
+        if (currentStudent) {
+            loadStudentNotes(currentStudent);
+        }
+    });
+
+    // Function to load student notes with filter
+    function loadStudentNotes(studentKey) {
+        currentStudent = studentKey;
+        const sessions = tutorData[studentKey];
+        const list = document.getElementById('notesList');
+        list.innerHTML = ''; // Clear previous notes
+
+        // Filter sessions based on selected subject
+        const filteredSessions = currentFilter === 'all' 
+            ? sessions 
+            : sessions.filter(session => session.subject === currentFilter);
+
+        if (filteredSessions.length === 0) {
+            list.innerHTML = '<p style="color: #666; padding: 10px;">No sessions found for selected subject</p>';
+            document.getElementById("noteContent").innerHTML = '';
+            return;
+        }
+
+        filteredSessions.forEach(session => {
+            const noteBtn = document.createElement('button');
+            noteBtn.className = 'noteBtn';
+            noteBtn.textContent = session.session;
+            noteBtn.addEventListener('click', () => {
+                document.querySelectorAll(".noteBtn")
+                    .forEach(btn => btn.classList.remove("selected"));
+
+                noteBtn.classList.add("selected");
+
+                document.getElementById('noteContent').innerHTML = `
+                    <img src="${session.content}" style="width:100%; max-width:700px;">
+                `;
+            });
+
+            list.appendChild(noteBtn);
+        });
+
+        document.getElementById("noteContent").textContent = "Select a session to view notes.";
+    }
 
     // When a student button is clicked load their notes
     document.querySelectorAll('.studentBtn').forEach(button => {
         button.addEventListener('click', () => {
-
             document.querySelectorAll(".studentBtn")
-            .forEach(btn => btn.classList.remove("selected"));
+                .forEach(btn => btn.classList.remove("selected"));
             
             button.classList.add("selected");
 
             const studentKey = button.dataset.student;
-            const sessions = tutorData[studentKey];
-
-            const list = document.getElementById('notesList');
-            list.innerHTML = ''; // Clear previous notes
-
-            sessions.forEach(session => {
-                const noteBtn = document.createElement('button');
-                noteBtn.className = 'noteBtn';
-                noteBtn.textContent = session.session;
-                noteBtn.addEventListener('click', () => {
-
-                    document.querySelectorAll(".noteBtn")
-                    .forEach(btn => btn.classList.remove("selected"));
-
-                    noteBtn.classList.add("selected");
-
-                    document.getElementById('noteContent').innerHTML = `
-                        <img src="${session.content}" style="width:100%; max-width:700px;">
-                    `;
-                });
-
-                list.appendChild(noteBtn);
-            });
-
-            document.getElementById("noteContent").textContent = "Select a session to view notes.";
+            loadStudentNotes(studentKey);
         });
     });
 </script>

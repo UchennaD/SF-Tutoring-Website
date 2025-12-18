@@ -164,7 +164,7 @@
             };
             
             if (type === 'recurring') {
-                // Day of weekly session
+                // Monday, Tuesday, Wednesday, etc. 
                 data.day_of_week = document.getElementById('dayOfWeek').value;
                 // Whether to include current day or start next week
                 data.include_today = (document.getElementById('include-today').value.trim() === "true") ? true : false;

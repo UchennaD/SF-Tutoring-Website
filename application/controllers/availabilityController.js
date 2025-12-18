@@ -1,7 +1,7 @@
 import pool from '../config/db.js';
 
 // Helper function to generate recurring dates
-function generateRecurringDates(dayOfWeek, weeksAhead = 4, includeToday = true) {
+function generateRecurringDates(dayOfWeek, weeksAhead = 4, includeToday = true, timeZone = 'America/Los_Angeles') {
     const dates = [];
     const dayMap = {
         'Monday': 1,
@@ -12,22 +12,37 @@ function generateRecurringDates(dayOfWeek, weeksAhead = 4, includeToday = true) 
         'Saturday': 6,
         'Sunday': 0
     };
-    const today = new Date();
+
+    // Compute "today" in the desired timezone as a DATE-ONLY value,
+    // then root @ UTC noon to avoid UTC date rollovers (& prevent the 1-day-behind issue)
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    }).formatToParts(new Date());
+
+    const y = Number(parts.find(p => p.type === 'year')?.value);
+    const m = Number(parts.find(p => p.type === 'month')?.value);
+    const d = Number(parts.find(p => p.type === 'day')?.value);
+
+    const base = new Date(Date.UTC(y, m - 1, d, 12, 0, 0)); // UTC noon == same local date in US timezones
+
     const targetDay = dayMap[dayOfWeek];
+    const baseDay = base.getUTCDay();
+    let dayUntilTarget = (targetDay - baseDay + 7) % 7;
+
+    // Sessions set for today's day of week get bumped a week if user doesn't wanna start today
+    if (dayUntilTarget === 0 && !includeToday) {
+        dayUntilTarget = 7;
+    }
 
     for (let week = 0; week < weeksAhead; week++) {
-        const date = new Date();
-        const currentDay = date.getDay();
-        let dayUntilTarget = (targetDay - currentDay + 7) % 7;
-
-        if (week === 0 && dayUntilTarget === 0 && !includeToday) {
-            dayUntilTarget = 7; // Skip to next week if today is the target day
-        }
-
-        date.setDate(today.getDate() + dayUntilTarget + (week * 7));
+        const date = new Date(base);
+        date.setUTCDate(base.getUTCDate() + dayUntilTarget + (week * 7));
         dates.push(date);
     }
-    
+
     return dates;
 }
 
@@ -133,10 +148,8 @@ export async function addTutorAvailability(req, res) {
                 return res.status(422).json({ success: false, error: 'day_of_week is required for recurring availability' });
             }
         } else {
-            if (!specific_date) {
-                await connection.rollback();
-                return res.status(422).json({ success: false, error: 'specific_date is required for non-recurring availability' });
-            }
+            // Anchor at UTC noon so ISO date string matches the intended calendar date
+            sessionDates.push(new Date(`${specific_date}T12:00:00Z`));
         }
 
 
@@ -175,14 +188,15 @@ export async function addTutorAvailability(req, res) {
             const dates = generateRecurringDates(day_of_week, 4, includeToday); // generate a month out
             sessionDates.push(...dates);
         } else {
-            sessionDates.push(new Date(specific_date));
+            // Anchor at UTC noon so ISO date string matches the intended calendar date
+            sessionDates.push(new Date(`${specific_date}T12:00:00Z`));
         }
         
         let insertedCount = 0;
         let skippedCount = 0;
         
         for (const date of sessionDates) {
-            const sessionDate = date.toISOString().split('T')[0];
+            const sessionDate = date.toISOString().slice(0, 10);
             
             // Check for existing slot
             const [existing] = await connection.execute(
@@ -201,9 +215,9 @@ export async function addTutorAvailability(req, res) {
             // Insert new session
             await connection.execute(
                 `INSERT INTO tutoring_sessions 
-                 (tutor_name, subjects, mode, session_date, time_slot, 
-                  tutor_rating, description, is_booked, tutor_id) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)`,
+                (tutor_name, subjects, mode, session_date, time_slot, 
+                tutor_rating, description, is_booked, tutor_id) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?)`,
                 [
                     tutorName,
                     subjects,

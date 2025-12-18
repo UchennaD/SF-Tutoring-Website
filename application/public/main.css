@@ -1471,7 +1471,8 @@ h3 {
 
 /* Hero Section */
 .hero {
-  background: linear-gradient(135deg, #eec451 0%, #ffedbb 100%);
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
+              url('resources/SFSU-drone-campus.png') no-repeat center center/cover;
   padding: 100px 20px;
   text-align: center;
   min-height: 500px;
@@ -1483,14 +1484,14 @@ h3 {
 .hero-content h1 {
   font-family: "Graduate", "Segoe UI", sans-serif;
   font-size: 48px;
-  color: #222;
+  color: white;
   margin-bottom: 20px;
   font-weight: 700;
 }
 
 .hero-subtitle {
   font-size: 20px;
-  color: #555;
+  color: white;
   margin-bottom: 30px;
   font-family: "Segoe UI", sans-serif;
 }

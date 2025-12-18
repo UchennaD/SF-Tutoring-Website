@@ -34,7 +34,7 @@ function generateRecurringDates(dayOfWeek, weeksAhead = 4) {
 // GET /api/tutor/availability
 export async function getTutorAvailability(req, res) {
     // Get's tutor ID from session instead of availability table
-    const tutorId = req.session.userId || req.session.tutorId;
+    const tutorId = req.session.user?.id;
 
     if (!tutorId) {
         return res.status(401).json({ 
@@ -65,7 +65,7 @@ export async function getTutorAvailability(req, res) {
 
 // POST /api/tutor/availability
 export async function addTutorAvailability(req, res) {
-    const tutorId = req.session.tutorId || req.session.userId;
+    const tutorId = req.session.user?.id;
     
     if (!tutorId) {
         return res.status(401).json({ 
@@ -185,7 +185,7 @@ export async function addTutorAvailability(req, res) {
 
 // DELETE /api/tutor/availability/:sessionId
 export async function removeTutorAvailability(req, res) {
-    const tutorId = req.session.tutorId || req.session.userId;
+    const tutorId = req.session.user?.id;
     const { sessionId } = req.params;
     
     if (!tutorId) {
@@ -219,15 +219,13 @@ export async function removeTutorAvailability(req, res) {
     }
 }
 
-///  NOTE: THIS FUNCTION WILL ALWAYS ERROR
-//  it references nonexistent properties of session object 
-//  It also seems redundant since already have a dashboard controller  - Jamie
+
+//  It seems redundant since already have a dashboard controller  - Jamie
 
 // GET /api/tutor/dashboard
 export async function getTutorDashboard(req, res) {
 
-    // NOT VALID PROPERTIES. See login() in authController.js for session initialization
-    const tutorId = req.session.tutorId || req.session.userId;
+    const tutorId = req.session.user?.id;
     
     if (!tutorId) {
         return res.status(401).json({ 

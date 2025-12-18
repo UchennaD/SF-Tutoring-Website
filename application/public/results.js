@@ -104,7 +104,26 @@ document.addEventListener("DOMContentLoaded", async (event) => {
                 : `<span class="subject-badge">General Help</span>`;
             const rating = parseFloat(tutor.tutor_rating) || 0;
             const date = tutor.session_date ? formatDate(tutor.session_date) : "Date TBA";
+
+
+            // Create SAFE time for HTML template (DB format: HH:MM:SS)
+            const rawTimeSlot = tutor.time_slot;
+            let htmlTime = 'Time not set';
+
+            if (rawTimeSlot) {
+            const [hhStr, mmStr] = String(rawTimeSlot).split(':');
+            const hh = Number(hhStr);
+            const mm = Number(mmStr);
+
+            if (!Number.isNaN(hh) && !Number.isNaN(mm)) {
+                const hour12 = ((hh + 11) % 12) + 1;
+                const ampm = hh >= 12 ? 'PM' : 'AM';
+                htmlTime = `${hour12}:${String(mm).padStart(2, '0')} ${ampm}`;
+            }
+            }
+            
             const description = tutor.description || "No description provided.";
+
 
             // Generate a random profile pic using 
             let gender = (Math.random() < 0.5) ? "men" : "women";
@@ -117,6 +136,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
     <div class="tutor-subject">${subjects}</div>
     <div class="tutor-rating">${generateStars(rating)}</div>
     <div class="tutor-date">Available: ${date}</div>
+    <div class="tutor-time">Start Time: ${htmlTime}</div>
     <div class="tutor-description">${description}</div>
     <button class="book-btn" data-session="${tutor.id}" data-tutor="${tutor.tutor_id}">Book Session</button>
 `;

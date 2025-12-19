@@ -1959,3 +1959,51 @@ body.tutor-theme .sidebar a:hover {
   color: #333;
 }
 
+/* Messaging */
+
+  /* 2-pane inbox layout (like your screenshot) */
+  #messagingContainer {
+    display: flex;
+    gap: 0;
+    height: calc(100vh - 90px); /* adjust if your header is taller */
+    box-sizing: border-box;
+  }
+
+  /* Left: conversation list */
+  #conversationsList.conversations-panel {
+    flex: 0 0 320px;
+    max-width: 360px;
+    min-width: 280px;
+    height: 100%;
+    overflow: auto;
+    box-sizing: border-box;
+  }
+
+  /* Right: chat window */
+  #chatWindow.chat-panel {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  /* Keep messages scrollable within the chat */
+  .messages-container {
+    overflow: auto;
+  }
+
+  /* Active convo highlight */
+  .convo-item.active {
+    outline: 2px solid #000;
+  }
+
+  @media (max-width: 900px) {
+    #messagingContainer {
+      height: auto;
+      min-height: calc(100vh - 90px);
+    }
+    #conversationsList.conversations-panel {
+      flex-basis: 280px;
+    }
+  }

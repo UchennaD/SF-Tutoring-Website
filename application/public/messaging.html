@@ -1,97 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages - Gator Tutors</title>
-    <link rel="stylesheet" href="main.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages - Gator Tutors</title>
+  <link rel="stylesheet" href="main.css">
+  <!-- <link rel="stylesheet" href="messaging.css"> -->
 </head>
 <body>
-    <!-- HEADER -->
-    <header id="mainHeader">
-        <div id="header-left">
-            <img src="resources/SFSUSeal.png" id="SFSUSeal" alt="SFSU Seal">
-            <h2 id="siteTitle">
-                <a id="homeLink" href="studentDashboard.html">Gator Tutors</a>
-            </h2>
-        </div>
-        <div id="header-right">
-            <a href="search.html" id="homeLink">Find a Tutor</a>
-        </div>
-    </header>
+  <!-- HEADER -->
+  <header id="mainHeader">
+    <div id="header-left">
+      <img src="resources/SFSUSeal.png" id="SFSUSeal" alt="SFSU Seal">
+      <h2 id="siteTitle">
+        <a id="homeLink" href="studentDashboard.html">Gator Tutors</a>
+      </h2>
+    </div>
+    <div id="header-right">
+      <a href="search.html" id="homeLink">Find a Tutor</a>
+    </div>
+  </header>
 
-    <!-- MESSAGING LAYOUT -->
-    <div id="messagingContainer">
-        <!-- Conversations List -->
-        <div id="conversationsList" class="conversations-panel">
-            <h2>Messages</h2>
-            <div class="search-conversations">
-                <input type="text" id="searchConvo" placeholder="Search conversations...">
-            </div>
-            <div id="conversationsListContent">
-                <!-- Conversations will be populated here -->
-            </div>
-        </div>
-
-        <!-- Chat Window -->
-        <div id="chatWindow" class="chat-panel">
-            <div id="chatHeader" class="chat-header">
-                <h2 id="chatTitle">Select a conversation</h2>
-                <button id="backButton" class="back-button" style="display:none;">← Back</button>
-            </div>
-            <div id="messagesContainer" class="messages-container">
-                <p class="no-message-placeholder">Select a conversation to start messaging</p>
-            </div>
-            <div id="inputContainer" class="message-input-container" style="display:none;">
-                <input type="text" id="messageInput" placeholder="Type a message..." class="message-input">
-                <button id="sendButton" class="send-button">Send</button>
-            </div>
-        </div>
+  <!-- MESSAGING LAYOUT -->
+  <div id="messagingContainer">
+    <!-- Conversations List -->
+    <div id="conversationsList" class="conversations-panel">
+      <h2>Messages</h2>
+      <div class="search-conversations">
+        <input type="text" id="searchConvo" placeholder="Search conversations...">
+      </div>
+      <div id="conversationsListContent"></div>
     </div>
 
-    <script>
-        // Send a message
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
+    <!-- Chat Window -->
+    <div id="chatWindow" class="chat-panel">
+      <div id="chatHeader" class="chat-header">
+        <h2 id="chatTitle">Select a conversation</h2>
+        <button id="backButton" class="back-button" style="display:none;">← Back</button>
+      </div>
+      <div id="messagesContainer" class="messages-container">
+        <p class="no-message-placeholder">Select a conversation to start messaging</p>
+      </div>
+      <div id="inputContainer" class="message-input-container" style="display:none;">
+        <input type="text" id="messageInput" placeholder="Type a message..." class="message-input">
+        <button id="sendButton" class="send-button">Send</button>
+      </div>
+    </div>
+  </div>
 
-            if (!text) return;
+  <script>
+    let convos = [];
+    let activeConvo = null;
+    let pollTimer = null;
 
-            // Create and display sent message
-            const msgElement = document.createElement('div');
-            msgElement.className = 'message sent';
-            const now = new Date();
-            const timestamp = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            
-            msgElement.innerHTML = `
-                <div class="message-sender">You</div>
-                <div class="message-text">${text}</div>
-                <div class="message-time">${timestamp}</div>
-            `;
-            document.getElementById('messagesContainer').appendChild(msgElement);
+    let currentUserRole = null;
+    let currentUserName = "You";
 
-            // Clear input
-            input.value = '';
+    const els = {
+      convosContainer: () => document.getElementById('conversationsListContent'),
+      search: () => document.getElementById('searchConvo'),
+      chatTitle: () => document.getElementById('chatTitle'),
+      backButton: () => document.getElementById('backButton'),
+      messages: () => document.getElementById('messagesContainer'),
+      inputContainer: () => document.getElementById('inputContainer'),
+      input: () => document.getElementById('messageInput'),
+      send: () => document.getElementById('sendButton'),
+    };
 
-            // Scroll to bottom
-            document.getElementById('messagesContainer').scrollTop = document.getElementById('messagesContainer').scrollHeight;
+    function formatTime(d) {
+      try {
+        return new Date(d).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      } catch {
+        return '';
+      }
+    }
+
+    function getOtherName(convo) {
+      if (!currentUserRole) return 'Conversation';
+      return currentUserRole === 'student'
+        ? (convo.tutor_name || 'Tutor')
+        : (convo.student_name || 'Student');
+    }
+
+    function isMineMessage(msg) {
+      if (!activeConvo || !currentUserRole) return false;
+      const myId = currentUserRole === 'student' ? activeConvo.student_id : activeConvo.tutor_id;
+      return Number(msg.sender_id) === Number(myId);
+    }
+
+    function renderConversations(list) {
+      const container = els.convosContainer();
+      container.innerHTML = '';
+
+      if (!list.length) {
+        const p = document.createElement('p');
+        p.className = 'no-message-placeholder';
+        p.textContent = 'No conversations yet.';
+        container.appendChild(p);
+        return;
+      }
+
+      for (const convo of list) {
+        const item = document.createElement('div');
+        item.className = 'convo-item';
+        item.tabIndex = 0;
+
+        // Highlight the currently-selected conversation
+        if (activeConvo && Number(activeConvo.convo_id) === Number(convo.convo_id)) {
+          item.classList.add('active');
         }
 
-        // Setup event listeners
-        function setupEventListeners() {
-            document.getElementById('sendButton').addEventListener('click', sendMessage);
-            document.getElementById('messageInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-        }
+        const title = document.createElement('div');
+        title.className = 'convo-title';
+        title.textContent = getOtherName(convo);
 
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            setupEventListeners();
-            document.getElementById('inputContainer').style.display = 'flex';
+        const preview = document.createElement('div');
+        preview.className = 'convo-preview';
+        preview.textContent = convo.last_message_text
+          ? String(convo.last_message_text).slice(0, 80)
+          : 'No messages yet';
+
+        const meta = document.createElement('div');
+        meta.className = 'convo-meta';
+        meta.textContent = convo.last_message_at ? formatTime(convo.last_message_at) : '';
+
+        item.appendChild(title);
+        item.appendChild(preview);
+        item.appendChild(meta);
+
+        item.addEventListener('click', () => selectConversation(convo));
+        item.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') selectConversation(convo);
         });
-    </script>
+
+        container.appendChild(item);
+      }
+    }
+
+    function renderMessages(messages) {
+      const container = els.messages();
+      container.innerHTML = '';
+
+      if (!messages.length) {
+        const p = document.createElement('p');
+        p.className = 'no-message-placeholder';
+        p.textContent = 'No messages yet. Say hi!';
+        container.appendChild(p);
+        return;
+      }
+
+      for (const msg of messages) {
+        const mine = isMineMessage(msg);
+        const wrapper = document.createElement('div');
+        wrapper.className = mine ? 'message sent' : 'message received';
+
+        const sender = document.createElement('div');
+        sender.className = 'message-sender';
+        sender.textContent = mine ? currentUserName : getOtherName(activeConvo);
+
+        const text = document.createElement('div');
+        text.className = 'message-text';
+        text.textContent = msg.message_text || '';
+
+        const time = document.createElement('div');
+        time.className = 'message-time';
+        time.textContent = msg.sent_at ? formatTime(msg.sent_at) : '';
+
+        wrapper.appendChild(sender);
+        wrapper.appendChild(text);
+        wrapper.appendChild(time);
+        container.appendChild(wrapper);
+      }
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function fetchConversations() {
+      const res = await fetch('/api/convos', { credentials: 'include' });
+      const data = await res.json();
+
+      if (!data.success) {
+        console.error('Failed to load conversations:', data);
+        renderConversations([]);
+        return;
+      }
+
+      currentUserRole = data.user_role;
+      currentUserName = data.user_name || 'You';
+
+      convos = data.convos || [];
+      renderConversations(convos);
+    }
+
+    async function fetchMessages(convoId) {
+      const res = await fetch(`/api/convos/${convoId}/messages`, { credentials: 'include' });
+      const data = await res.json();
+
+      if (!data.success) {
+        console.error('Failed to load messages:', data);
+        renderMessages([]);
+        return;
+      }
+
+      renderMessages(data.messages || []);
+    }
+
+    async function selectConversation(convo) {
+      activeConvo = convo;
+      els.chatTitle().textContent = getOtherName(convo);
+      els.inputContainer().style.display = 'flex';
+
+      // Re-render list so the active conversation highlights
+      renderConversations(convos);
+
+      if (pollTimer) clearInterval(pollTimer);
+
+      await fetchMessages(convo.convo_id);
+      pollTimer = setInterval(() => fetchMessages(convo.convo_id), 2500);
+
+      // Optional (mostly for mobile); harmless on desktop
+      els.backButton().style.display = 'inline-flex';
+    }
+
+    async function sendMessage() {
+      if (!activeConvo) return;
+
+      const input = els.input();
+      const text = input.value.trim();
+      if (!text) return;
+
+      // receiver_id is the other participant in this convo
+      const receiverId = currentUserRole === 'student' ? activeConvo.tutor_id : activeConvo.student_id;
+
+      els.send().disabled = true;
+
+      try {
+        const res = await fetch(`/api/convos/${activeConvo.convo_id}/messages`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ receiver_id: receiverId, message_text: text })
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          console.error('Send failed:', data);
+          alert(data.error || 'Message failed to send.');
+          return;
+        }
+
+        input.value = '';
+        await fetchMessages(activeConvo.convo_id);
+        await fetchConversations();
+
+      } catch (err) {
+        console.error(err);
+        alert('Message failed to send.');
+
+      } finally {
+        els.send().disabled = false;
+        input.focus();
+      }
+    }
+
+    function setupEventListeners() {
+      els.send().addEventListener('click', sendMessage);
+      els.input().addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+      });
+
+      els.search().addEventListener('input', (e) => {
+        const q = String(e.target.value || '').toLowerCase().trim();
+        if (!q) return renderConversations(convos);
+        const filtered = convos.filter(c => getOtherName(c).toLowerCase().includes(q));
+        renderConversations(filtered);
+      });
+
+      els.backButton().addEventListener('click', () => {
+        activeConvo = null;
+        els.chatTitle().textContent = 'Select a conversation';
+        els.messages().innerHTML = '<p class="no-message-placeholder">Select a conversation to start messaging</p>';
+        els.inputContainer().style.display = 'none';
+        els.backButton().style.display = 'none';
+
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = null;
+
+        // Remove highlight from convo list
+        renderConversations(convos);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      setupEventListeners();
+      els.inputContainer().style.display = 'none';
+      els.backButton().style.display = 'none';
+      await fetchConversations();
+    });
+  </script>
 </body>
 </html>

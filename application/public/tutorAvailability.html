@@ -17,8 +17,7 @@
         </div>
         <div id="header-right">
             <a href="tutorDashboard.html">Dashboard</a>
-            <!-- TO-DO: Fix LOGOUT - Jamie -->
-            <a href="login.html">Logout</a> 
+            <button onclick=logout()>Logout</button>
         </div>
     </header>
 
@@ -313,6 +312,16 @@
             const displayHour = hour % 12 || 12;
 
             return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        function logout(){
+            fetch("/logout", {
+                method: "POST",
+                credentials: "include"
+            })
+            .then(() => {
+                window.location.href = "login.html"
+            })
         }
     </script>
 </body>

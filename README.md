@@ -1,25 +1,90 @@
-# csc648 Repository
+# Gator Tutors
 
-## Please when ready add your teams application URL or IP to the repository description. This will help with grading. Teams are expected to keep this value up to date.
+A full-stack tutoring platform for San Francisco State University students. Students can search for tutors by subject, book and cancel sessions, and message tutors directly. Tutors can manage their availability, view upcoming sessions, and share notes from a personal dashboard.
 
-## Please do the following steps before completing Milestone 0.
-1. Change the name of the repository. All that needs to change is the NN to your respective team number. Team numbers whose value is less than 10, please pad with a 0. Ex team 1 is Team01 team 11 is Team11. Please make sure to also remove the username from the repository as well. Teams with incorrectly name repository will have points deducted from their milestone 0 grades.
-      - Please follow the naming convention assigned by your instructor.
+## Features
 
-1. PLEASE REMOVE THE USERNAME FROM THE REPOSITORY NAME!!!
+- **Tutor search**: browse and filter tutors by subject and course
+- **Session booking**: book and cancel tutoring sessions, with confirmation pages
+- **Accounts and authentication**: separate student and tutor sign-up, email verification with one-time passcodes, hashed passwords (bcrypt), and server-side sessions stored in MySQL
+- **Dashboards**: personalized student and tutor dashboards showing upcoming sessions and profile details
+- **Tutor availability**: tutors add and remove open time slots that students can book
+- **Messaging**: one-to-one conversations between students and tutors
 
-2. Add ALL members of your team to this repository. For it to count, they must ACCEPT the invite.
+## Tech Stack
 
-3. Fill out the table below
+| Layer | Technology |
+|---|---|
+| Frontend | HTML, CSS, JavaScript |
+| Backend | Node.js, Express |
+| Database | MySQL (SQL) on AWS RDS |
+| Hosting | AWS EC2 (Ubuntu), Nginx reverse proxy, PM2 process manager |
+| Email | Resend API (verification codes) |
+| Auth | bcrypt, express-session, express-mysql-session |
 
+## Architecture
 
-| Student Name | School Email | GitHub Username |
-|:-----------|:------------:|------------:|
-| William Wong      | wwong23@sfsu.edu     |   WilliamWong55955       |
-| Uchenna Duru      |       uduru2@sfsu.edu        |       UchennaD          |
-| Randy Chen      |       rchen10@sfsu.edu        |        Randychen10         |
-| Ethan Niu      |        eniu1@sfsu.edu       |        ethannniu         |
-| Cyrus Molina-Perez      |       cmolinaperez@sfsu.edu        |      cyrusmp           |
-| James Barr      |       jbarr@sfsu.edu        |         sfbarr        |
+```
+Browser (HTML/CSS/JS)
+        │
+        ▼
+Nginx on AWS EC2  ──►  Express API (Node.js, managed by PM2)
+                              │
+                              ▼
+                       MySQL on AWS RDS
+```
 
-## NO code needs to be stored in the root of your repository. You may rename the application folder if you like to your team's application name. But all source code related to your team's application should be stored inside the application folder.
+The Express server serves the static frontend from `application/public/` and exposes a REST API under `/api`:
+
+| Route group | Purpose |
+|---|---|
+| `/api/auth` | Sign-up, email OTP verification, login, logout, session check |
+| `/api/search` | Tutor search |
+| `/api/book` | Book and cancel sessions |
+| `/api/dashboard`, `/api/upcoming-sessions`, `/api/profile` | Dashboard and profile data |
+| `/api/tutor/availability` | Tutor availability management |
+| `/api/convos` | Conversations and messages |
+
+## Project Structure
+
+```
+application/
+├── server.js          # Express app, sessions, route mounting
+├── config/db.js       # MySQL connection pool
+├── controllers/       # Request handling and SQL queries
+├── routes/            # API route definitions
+├── middleware/        # Auth middleware
+├── utils/mailer.js    # Resend email client
+└── public/            # Frontend pages, styles, scripts, assets
+Milestones/            # Course milestone documents (M1–M5)
+```
+
+## Running Locally
+
+**Prerequisites:** Node.js (see `.nvmrc`) and a MySQL database.
+
+```bash
+cd application
+npm install
+```
+
+Create `application/.env` with your own values:
+
+```
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=your_db_name
+SESSION_SECRET=any_long_random_string
+RESEND_API_KEY=your_resend_api_key
+PORT=3000
+```
+
+Then start the server:
+
+```bash
+npm start
+```
+
+The app runs at `http://localhost:3000`.
